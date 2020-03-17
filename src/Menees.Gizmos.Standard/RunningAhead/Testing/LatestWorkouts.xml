@@ -1,0 +1,50 @@
+<RA>
+  <h3>Latest workouts</h3>
+  <table class="RARecords">
+    <tr>
+      <td colspan="2">12/4/2013</td>
+    </tr>
+    <tr>
+      <th>Run</th>
+      <td>
+        <a href="http://www.runningahead.com/logs/23fbfe3407d54034bb604d607cb56919/workouts/2b0f6ba6e2f549f68e41882147882e38">5.3 mi</a>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">12/3/2013</td>
+    </tr>
+    <tr>
+      <th>Run</th>
+      <td>
+        <a href="http://www.runningahead.com/logs/23fbfe3407d54034bb604d607cb56919/workouts/7ef94c3e92a44c6392fc001d8fc7295e">5.2 mi</a>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">12/1/2013</td>
+    </tr>
+    <tr>
+      <th>Run</th>
+      <td>
+        <a href="http://www.runningahead.com/logs/23fbfe3407d54034bb604d607cb56919/workouts/48fbaf381f19445c981476d5ae1caf38">5.2 mi</a>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">11/29/2013</td>
+    </tr>
+    <tr>
+      <th>Run</th>
+      <td>
+        <a href="http://www.runningahead.com/logs/23fbfe3407d54034bb604d607cb56919/workouts/9bc336a978a84f5297bf46b0fbab1c19">5.2 mi</a>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">11/28/2013</td>
+    </tr>
+    <tr>
+      <th>Run</th>
+      <td>
+        <a href="http://www.runningahead.com/logs/23fbfe3407d54034bb604d607cb56919/workouts/73e1d91b4420474b9c989c874a1f8652">5 mi</a>
+      </td>
+    </tr>
+  </table>
+</RA>

@@ -1,0 +1,122 @@
+﻿<g:OptionsPage x:Class="Menees.Gizmos.RunningAhead.StatsOptionsPage"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+	xmlns:g="http://menees.com/gizmos"
+	xmlns:sys="clr-namespace:System;assembly=mscorlib"
+	xmlns:local="clr-namespace:Menees.Gizmos.RunningAhead"
+	mc:Ignorable="d">
+	<Grid Margin="8,8,8,4">
+		<Grid.Resources>
+			<Style TargetType="ComboBox">
+				<Setter Property="MinHeight" Value="24"/>
+				<Setter Property="Margin" Value="0,4"/>
+			</Style>
+			<Style TargetType="TextBox">
+				<Setter Property="Height" Value="24"/>
+				<Setter Property="VerticalContentAlignment" Value="Center"/>
+			</Style>
+			<Style TargetType="Label">
+				<Setter Property="Margin" Value="0"/>
+				<Setter Property="Padding" Value="0,2,8,2"/>
+				<Setter Property="VerticalContentAlignment" Value="Center"/>
+			</Style>
+			<Style TargetType="RadioButton">
+				<Setter Property="Margin" Value="0,4"/>
+				<Setter Property="VerticalAlignment" Value="Center"/>
+				<Setter Property="VerticalContentAlignment" Value="Center"/>
+			</Style>
+		</Grid.Resources>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		
+		<Label Content="_Log ID:" Target="{Binding ElementName=logId, Mode=OneWay}" />
+		<TextBox x:Name="logId" Grid.Column="1" Width="270" />
+		<TextBlock Grid.Row="1" Grid.Column="1" Text="(hex string from log URL; NOT user name)" FontSize="10" Margin="0,0,0,4"/>
+		<Label Grid.Row="2" Content="Auto-_Refresh:" Target="{Binding ElementName=hours, Mode=OneWay}" />
+		<StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+			<ComboBox x:Name="hours" MinWidth="50" HorizontalContentAlignment="Right">
+				<ComboBox.Items>
+					<sys:Double>0.25</sys:Double>
+					<sys:Double>0.5</sys:Double>
+					<sys:Double>1</sys:Double>
+					<sys:Double>2</sys:Double>
+					<sys:Double>3</sys:Double>
+					<sys:Double>4</sys:Double>
+					<sys:Double>6</sys:Double>
+					<sys:Double>8</sys:Double>
+					<sys:Double>12</sys:Double>
+					<sys:Double>24</sys:Double>
+				</ComboBox.Items>
+			</ComboBox>
+			<TextBlock VerticalAlignment="Center" Margin="4">Hours</TextBlock>
+		</StackPanel>
+		<Label Content="_Header:" Grid.Row="3" Target="{Binding ElementName=useDefaultHeader, Mode=OneWay}"/>
+		<DockPanel Grid.Column="1" Grid.Row="3">
+			<RadioButton x:Name="useDefaultHeader" Content="Default" DockPanel.Dock="Left" Margin="0,4,8,4"/>
+			<RadioButton x:Name="useCustomHeader" HorizontalContentAlignment="Stretch">
+				<StackPanel>
+					<!-- http://stackoverflow.com/questions/3720855/stopping-wpf-textbox-from-growing-with-text -->
+					<Border x:Name="customHeaderSizeLimiter"/>
+					<TextBox x:Name="customHeader" Width="{Binding ActualWidth, ElementName=customHeaderSizeLimiter}" />
+				</StackPanel>
+			</RadioButton>
+		</DockPanel>
+		<Label Content="_Stats:" Grid.Row="4" Target="{Binding ElementName=statsFormat, Mode=OneWay}"/>
+		<ComboBox x:Name="statsFormat" Grid.Column="1" Grid.Row="4" SelectedValuePath="Tag">
+			<ComboBox.Items>
+				<ComboBoxItem Content="Distance Totals">
+					<ComboBoxItem.Tag>
+						<local:StatsFormat>DistanceTotals</local:StatsFormat>
+					</ComboBoxItem.Tag>					
+				</ComboBoxItem>
+				<ComboBoxItem Content="Latest Workouts">
+					<ComboBoxItem.Tag>
+						<local:StatsFormat>LatestWorkouts</local:StatsFormat>
+					</ComboBoxItem.Tag>
+				</ComboBoxItem>
+				<ComboBoxItem Content="Personal Records">
+					<ComboBoxItem.Tag>
+						<local:StatsFormat>PersonalRecords</local:StatsFormat>
+					</ComboBoxItem.Tag>
+				</ComboBoxItem>
+				<ComboBoxItem Content="Scheduled Workouts">
+					<ComboBoxItem.Tag>
+						<local:StatsFormat>ScheduledWorkouts</local:StatsFormat>
+					</ComboBoxItem.Tag>
+				</ComboBoxItem>
+			</ComboBox.Items>
+		</ComboBox>
+		<Label Content="_Footer:" Grid.Row="5" Target="{Binding ElementName=footerFormat, Mode=OneWay}"/>
+		<ComboBox x:Name="footerFormat" Grid.Column="1" Grid.Row="5" SelectedValuePath="Tag">
+			<ComboBox.Items>
+				<ComboBoxItem Content="None">
+					<ComboBoxItem.Tag>
+						<local:FooterFormat>None</local:FooterFormat>
+					</ComboBoxItem.Tag>
+				</ComboBoxItem>
+				<ComboBoxItem Content="Refreshed Time">
+					<ComboBoxItem.Tag>
+						<local:FooterFormat>RefreshedTime</local:FooterFormat>
+					</ComboBoxItem.Tag>
+				</ComboBoxItem>
+				<ComboBoxItem Content="Refreshed Date &amp; Time">
+					<ComboBoxItem.Tag>
+						<local:FooterFormat>RefreshedDateTime</local:FooterFormat>
+					</ComboBoxItem.Tag>
+				</ComboBoxItem>
+			</ComboBox.Items>
+		</ComboBox>
+	</Grid>
+</g:OptionsPage>

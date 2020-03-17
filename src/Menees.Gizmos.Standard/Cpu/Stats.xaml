@@ -1,0 +1,99 @@
+﻿<g:Gizmo x:Class="Menees.Gizmos.Cpu.Stats"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+	xmlns:g="http://menees.com/gizmos"
+	xmlns:m="http://menees.com/xaml"
+	xmlns:sys="clr-namespace:System;assembly=mscorlib"
+	xmlns:local="clr-namespace:Menees.Gizmos.Cpu"
+	Width="150">
+	<Border BorderThickness="2" CornerRadius="6"
+		BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}">
+		<Border.ContextMenu>
+			<ContextMenu Opened="ContextMenu_Opened">
+				<MenuItem x:Name="oneSecondMenu" Header="1 second" Click="Time_Click">
+					<MenuItem.Tag>
+						<sys:TimeSpan>0:00:01</sys:TimeSpan>
+					</MenuItem.Tag>
+				</MenuItem>
+				<MenuItem x:Name="fiveSecondsMenu" Header="5 seconds" Click="Time_Click">
+					<MenuItem.Tag>
+						<sys:TimeSpan>0:00:05</sys:TimeSpan>
+					</MenuItem.Tag>
+				</MenuItem>
+				<MenuItem x:Name="pausedMenu" Header="Paused" Click="Pause_Click"/>
+				<Separator/>				
+				<!-- Because this gizmo will never get keyboard focus, we can't use the "Refresh" command.
+				WPF won't call the CommandBinding's CanExecute without keyboard focus, and even if we work
+				around that, the command's F5 shortcut will show but won't work.  So I'm doing this old school.
+				http://stackoverflow.com/questions/3921712/wpf-custom-command-in-context-menu-are-disabled-until-any-button-clicked -->
+				<MenuItem Header="Refresh" Click="Refresh_Click"/>
+			</ContextMenu>
+		</Border.ContextMenu>
+		<Border.Background>
+			<LinearGradientBrush EndPoint="1,0">
+				<GradientStop Color="{DynamicResource {x:Static SystemColors.GradientActiveCaptionColorKey}}" />
+				<GradientStop Color="{DynamicResource {x:Static SystemColors.GradientInactiveCaptionColorKey}}" Offset=".1" />
+				<GradientStop Color="{DynamicResource {x:Static SystemColors.GradientActiveCaptionColorKey}}" Offset="0.5" />
+				<GradientStop Color="{DynamicResource {x:Static SystemColors.GradientInactiveCaptionColorKey}}" Offset="0.9" />
+				<GradientStop Color="{DynamicResource {x:Static SystemColors.GradientActiveCaptionColorKey}}" Offset="1" />
+			</LinearGradientBrush>
+		</Border.Background>
+		<Grid Margin="2" >
+			<Grid.Resources>
+				<m:StringToVisibilityConverter x:Key="VisibilityConverter"/>
+				<Style x:Key="ProcName" TargetType="{x:Type TextBlock}">
+					<Setter Property="FontSize" Value="10" />
+					<Setter Property="Margin" Value="3,0" />
+					<Setter Property="TextTrimming" Value="CharacterEllipsis" />
+					<Setter Property="Visibility" Value="{Binding Text, Converter={StaticResource VisibilityConverter}, RelativeSource={RelativeSource Self}}"/>
+				</Style>
+				<Style x:Key="ProcUsage" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource ProcName}">
+					<Setter Property="HorizontalAlignment" Value="Right" />
+				</Style>
+			</Grid.Resources>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition/>
+				<!-- Make the usage column auto-size so the text trimming will be applied to the name column. -->
+				<ColumnDefinition Width="Auto"/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
+			<Border x:Name="cpuBorder" Grid.ColumnSpan="2" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"
+				BorderThickness="1" Padding="2,1" CornerRadius="3">
+				<Border.Resources>
+					<Style TargetType="Border">
+						<Setter Property="Background" Value="#44FFFFFF" />
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding IsPaused, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Stats}}}" Value="True">
+								<Setter Property="Background" Value="Yellow"/>
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</Border.Resources>
+				<DockPanel>
+					<TextBlock Text="CPU:" DockPanel.Dock="Left"/>
+					<TextBlock x:Name="overallUsage" Text="57 %" DockPanel.Dock="Right"/>
+					<ProgressBar x:Name="overallBar" Height="12" Margin="4,0" Foreground="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" Value="47"/>
+				</DockPanel>
+			</Border>
+			<TextBlock x:Name="procName1" Grid.Row="1" Style="{StaticResource ProcName}" Text="Abc.exe"/>
+			<TextBlock x:Name="procUsage1" Grid.Row="1" Grid.Column="1" Style="{StaticResource ProcUsage}" Text="24 %"/>
+			<TextBlock x:Name="procName2" Grid.Row="2" Style="{StaticResource ProcName}" Text="ProcLonger.exe"/>
+			<TextBlock x:Name="procUsage2" Grid.Row="2" Grid.Column="1" Style="{StaticResource ProcUsage}" Text="12 %"/>
+			<TextBlock x:Name="procName3" Grid.Row="3" Style="{StaticResource ProcName}" Text="Proc3.exe"/>
+			<TextBlock x:Name="procUsage3" Grid.Row="3" Grid.Column="1" Style="{StaticResource ProcUsage}" Text="6 %"/>
+			<TextBlock x:Name="procName4" Grid.Row="4" Style="{StaticResource ProcName}" Text="Proc4.exe"/>
+			<TextBlock x:Name="procUsage4" Grid.Row="4" Grid.Column="1" Style="{StaticResource ProcUsage}" Text="6 %"/>
+			<TextBlock x:Name="procName5" Grid.Row="5" Style="{StaticResource ProcName}" Text="Proc5.exe"/>
+			<TextBlock x:Name="procUsage5" Grid.Row="5" Grid.Column="1" Style="{StaticResource ProcUsage}" Text="6 %"/>
+		</Grid>
+	</Border>
+</g:Gizmo>

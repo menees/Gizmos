@@ -1,0 +1,58 @@
+﻿<g:Gizmo x:Class="Menees.Gizmos.RunningAhead.Stats"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+	xmlns:g="http://menees.com/gizmos"
+	xmlns:m="http://menees.com/xaml"			
+	mc:Ignorable="d"
+	Width="150" Height="Auto">
+	<UserControl.Resources>
+		<Style x:Key="SmallFont" TargetType="TextBlock">
+			<Setter Property="FontSize" Value="10"/>
+		</Style>
+		<m:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+	</UserControl.Resources>
+	<Border CornerRadius="6" BorderThickness="1.5" SnapsToDevicePixels="False">
+		<Border.BorderBrush>
+			<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+				<GradientStop Color="#50788B" Offset="0" />
+				<GradientStop Color="#5691B3" Offset="1" />
+			</LinearGradientBrush>
+		</Border.BorderBrush>
+		<Border.Background>
+			<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+				<GradientStop Color="#6996AF" Offset="0" />
+				<GradientStop Color="#90BADA" Offset=".4" />
+				<GradientStop Color="#9AC2E4" Offset="1" />
+			</LinearGradientBrush>
+		</Border.Background>
+		<StackPanel Margin="6">
+			<Image Source="Resources/RunningAheadLogo.png"/>
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition/>
+					<ColumnDefinition/>
+				</Grid.ColumnDefinitions>
+				<TextBlock Style="{StaticResource SmallFont}" Margin="0,0,0,2">
+					<Hyperlink RequestNavigate="ViewLog_RequestNavigate" NavigateUri="NoOp">View Log</Hyperlink>
+				</TextBlock>
+				<TextBlock Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource SmallFont}" Margin="0,0,0,2">
+					<Hyperlink RequestNavigate="Refresh_RequestNavigate" NavigateUri="NoOp">Refresh</Hyperlink>
+				</TextBlock>
+			</Grid>
+			<TextBlock x:Name="title" Text="Distance Totals" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,2"
+				Visibility="{Binding Text, Converter={StaticResource StringToVisibilityConverter}, RelativeSource={RelativeSource Self}}"/>
+			<Grid x:Name="data" Margin="0,2">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition/>
+					<ColumnDefinition/>
+				</Grid.ColumnDefinitions>
+				<TextBlock>Week:</TextBlock>
+				<TextBlock Grid.Column="1" HorizontalAlignment="Right">20.7 mi</TextBlock>
+			</Grid>
+			<TextBlock x:Name="footer" Style="{StaticResource SmallFont}" Foreground="#FF264F78" Margin="0,2,0,0" Height="Auto" Text="12/1/13 12:35"
+				Visibility="{Binding Text, Converter={StaticResource StringToVisibilityConverter}, RelativeSource={RelativeSource Self}}"/>
+		</StackPanel>
+	</Border>
+</g:Gizmo>

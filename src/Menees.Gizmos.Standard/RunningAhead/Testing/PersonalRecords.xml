@@ -1,0 +1,29 @@
+<RA>
+  <h3 class="RATitle">Personal Records</h3>
+  <table id="m_records" class="RARecords">
+    <tr>
+      <th>5.00 km:</th>
+      <td>19:01</td>
+    </tr>
+    <tr>
+      <th>5.00 mi:</th>
+      <td>32:52</td>
+    </tr>
+    <tr>
+      <th>10.00 km:</th>
+      <td>40:46</td>
+    </tr>
+    <tr>
+      <th>10.00 mi:</th>
+      <td>1:15:06</td>
+    </tr>
+    <tr>
+      <th>Half Marathon:</th>
+      <td>1:27:26</td>
+    </tr>
+    <tr>
+      <th>Marathon:</th>
+      <td>3:31:06</td>
+    </tr>
+  </table>
+</RA>

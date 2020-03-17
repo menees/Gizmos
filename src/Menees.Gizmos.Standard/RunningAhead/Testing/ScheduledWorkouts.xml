@@ -1,0 +1,24 @@
+<RA>
+  <h3 class="RATitle">My Scheduled Workouts</h3>
+  <table class="RARecords"></table>
+  <h4>Tuesday</h4>
+  <p class="RAText">
+    <span>Run - Easy: 5 mi</span>
+  </p>
+  <h4>Wednesday</h4>
+  <p class="RAText">
+    <span>Run - Tempo: 8 mi / 1:00:00</span>
+  </p>
+  <h4>Thursday</h4>
+  <p class="RAText">
+    <span>Run - Easy: 5 mi</span>
+  </p>
+  <h4>Friday</h4>
+  <p class="RAText">
+    <span>Weights/Yoga</span>
+  </p>
+  <h4>Saturday</h4>
+  <p class="RAText">
+    <span>Run - Easy: 6 mi</span>
+  </p>
+</RA>

@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+	<PropertyGroup>
+		<TargetFrameworks>netcoreapp3.1;net45</TargetFrameworks>
+		<UseWPF>true</UseWPF>
+		<RootNamespace>Menees.Gizmos</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="System.Net.Http" Version="4.3.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Menees.Gizmos.Sdk\Menees.Gizmos.Sdk.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Resource Include="RunningAhead\Resources\RunningAheadLogo.png" />
+		<Resource Include="Weather\Resources\RaindropTiny.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Properties\Settings.Designer.cs">
+	    <DesignTimeSharedInput>True</DesignTimeSharedInput>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Settings.settings</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Properties\Settings.settings">
+	    <Generator>SettingsSingleFileGenerator</Generator>
+	    <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+	  </None>
+	</ItemGroup>
+
+	<Choose>
+		<When Condition=" '$(TargetFramework)' == 'net45' ">
+			<ItemGroup>
+				<Compile Remove="Weather\Provider.Core.cs" />
+				<Content Include="Weather\Provider.Core.cs" />
+
+				<!-- This includes WebRequestHandler. -->
+				<Reference Include="System.Net.Http.WebRequest" />
+			</ItemGroup>
+		</When>
+		<Otherwise>
+			<ItemGroup>
+				<Compile Remove="Weather\Provider.Framework.cs" />
+				<Content Include="Weather\Provider.Framework.cs" />
+			</ItemGroup>
+		</Otherwise>
+	</Choose>
+</Project>

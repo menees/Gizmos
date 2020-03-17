@@ -15,3 +15,6 @@ Gizmos requires the .NET Framework or .NET Core. To create custom gizmos you can
 Menees.Gizmos UserControl type. See the included documentation and/or source code for more information.
 
 This software is CharityWare. If you use it, I ask that you donate something to the charity of your choice.
+
+## Examples
+![Gizmos](http://www.menees.com/Images/Gizmos.png)

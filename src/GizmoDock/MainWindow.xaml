@@ -1,0 +1,87 @@
+﻿<m:ExtendedWindow
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:m="http://menees.com/xaml"
+        xmlns:local="clr-namespace:Menees.Gizmos"
+		xmlns:c="clr-namespace:Menees;assembly=Menees.Common"
+		x:Class="Menees.Gizmos.MainWindow"
+        Title="{x:Static c:ApplicationInfo.ApplicationName}" Height="200" Width="200"
+		x:ClassModifier="internal"
+		AllowsTransparency="True" WindowStyle="None" Background="Transparent" ShowInTaskbar="False"
+		SizeToContent="WidthAndHeight" ResizeMode="NoResize" Loaded="Window_Loaded" Closing="Window_Closing" Closed="Window_Closed">
+	<!-- Window notes:
+	AllowsTransparency, WindowStyle, and Background are set per Adam Nathan's WPF 4.5 book pg 205.
+	ResizeMode="NoResize" is used to prevent Windows from doing Aero Snap near a monitor's edge. -->
+	<DockPanel>
+		<DockPanel.Resources>
+			<Style x:Key="FlyoverPanel" TargetType="StackPanel">
+				<Style.Triggers>
+					<DataTrigger Binding="{Binding IsMouseOver, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"
+						Value="True">
+						<DataTrigger.EnterActions>
+							<BeginStoryboard>
+								<Storyboard>
+									<!-- I can't leave out the From value here, or it will become opaque immediately.  I'm not sure why. -->
+									<DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.0" To="1.0" Duration="0:0:0.25" />
+								</Storyboard>
+							</BeginStoryboard>
+						</DataTrigger.EnterActions>
+						<DataTrigger.ExitActions>
+							<BeginStoryboard>
+								<Storyboard>
+									<!-- I leave out the To value here, so it will go back to whatever value it had before. -->
+									<DoubleAnimation Storyboard.TargetProperty="Opacity" From="1.0" Duration="0:0:0.25"/>
+								</Storyboard>
+							</BeginStoryboard>
+						</DataTrigger.ExitActions>
+					</DataTrigger>
+					<!-- I have to specify the IsMouseOver=False setting explicitly, so the flyover panel
+					will be in the correct state if the app starts where the mouse isn't over it. -->
+					<DataTrigger Binding="{Binding IsMouseOver, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"
+						Value="False">
+						<Setter Property="Opacity" Value="0"/>
+					</DataTrigger>
+				</Style.Triggers>
+				<Style.Resources>
+					<Style TargetType="Button">
+						<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.GradientInactiveCaptionBrushKey}}"/>
+						<Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.GradientInactiveCaptionBrushKey}}"/>
+						<!-- The focus rect doesn't disappear when the opacity fades to 0 if the Options dialog is cancelled using ESC. -->
+						<Setter Property="Focusable" Value="False"/>
+					</Style>
+					<Style TargetType="Border">
+						<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.GradientInactiveCaptionBrushKey}}"/>
+						<Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.GradientInactiveCaptionBrushKey}}"/>
+						<Setter Property="Padding" Value="0,4"/>
+					</Style>
+				</Style.Resources>
+			</Style>
+			<Style x:Key="GapPanel" TargetType="StackPanel">
+				<!-- I have to make the "gap" StackPanel be a tiny bit translucent in order for hit testing to see it.
+				Otherwise, as soon as the mouse moves over a fully transparent gap, then IsMouseOver will return
+				false for the MainWindow and the control grid will disappear. -->
+				<Setter Property="Background" Value="#01000000"/>
+				<Setter Property="Width" Value="2"/>
+			</Style>
+		</DockPanel.Resources>
+		<StackPanel x:Name="controlBar" DockPanel.Dock="Left" Style="{StaticResource FlyoverPanel}" VerticalAlignment="Top" Orientation="Horizontal">
+			<StackPanel Orientation="Vertical" Width="24">
+				<Button Content="r" FontFamily="Webdings" FontSize="16" FontWeight="Light" Click="Close_Click"
+						Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}" ToolTip="Close"/>
+				<Button x:Name="optionsButton" Content="¼" FontFamily="Webdings" FontSize="16" FontWeight="Normal"  Click="Options_Click"
+						Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}}" ToolTip="Options"/>
+				<!-- I had to surround the image with a border; otherwise, Window.IsMouseOver always returned false over the image. -->
+				<Border MouseLeftButtonDown="Grip_Click" ToolTip="Drag" ToolTipService.InitialShowDelay="1000">
+					<Image Source="Resources/Grip.png" Stretch="None"/>
+				</Border>
+			</StackPanel>
+			<StackPanel Style="{StaticResource GapPanel}"/>
+		</StackPanel>
+		<StackPanel x:Name="gizmoDock">
+			<Border BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"
+					BorderThickness="2" CornerRadius="8" Background="{DynamicResource {x:Static SystemColors.InfoBrushKey}}">
+				<Label Content="No gizmo is loaded." />
+			</Border>
+		</StackPanel>
+	</DockPanel>
+</m:ExtendedWindow>

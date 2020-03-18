@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;net45</TargetFrameworks>
     <UseWPF>true</UseWPF>
-    <RootNamespace>Menees.Gizmos</RootNamespace>
   </PropertyGroup>
 
 </Project>

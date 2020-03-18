@@ -1,0 +1,7 @@
+﻿<Application x:Class="Menees.Gizmos.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"             
+			 x:ClassModifier="internal">
+	<!-- We're not setting StartupUri="MainWindow.xaml" because we need
+	to check the command line parameters first in App.OnStartup. -->
+</Application>

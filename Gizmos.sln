@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29911.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GizmoDock", "src\GizmoDock\GizmoDock.csproj", "{8C67A235-0F4B-4E9F-A33D-7A4E1E01638A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E6FCDFBC-DEF7-40D4-AE8C-FE5013FECB83} = {E6FCDFBC-DEF7-40D4-AE8C-FE5013FECB83}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Menees.Gizmos.Sdk", "src\Menees.Gizmos.Sdk\Menees.Gizmos.Sdk.csproj", "{0395A36B-2EB5-4EA3-98CE-D53CD6067C29}"
 EndProject

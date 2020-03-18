@@ -1,0 +1,33 @@
+﻿<m:ExtendedDialog
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:m="http://menees.com/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:System="clr-namespace:System;assembly=mscorlib"
+		mc:Ignorable="d"
+		x:Class="Menees.Gizmos.OptionsDialog"
+		x:ClassModifier="internal"
+        Title="Options" SizeToContent="WidthAndHeight" Loaded="Dialog_Loaded" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+	<DockPanel x:Name="dock">
+		<DockPanel DockPanel.Dock="Bottom">
+			<StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+				<m:HyperlinkButton Margin="6" Content="About GizmoDock..." Click="About_Click" TabIndex="3"/>
+			</StackPanel>
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+				<StackPanel.Resources>
+					<Style TargetType="{x:Type Button}">
+						<Setter Property="Width" Value="75" />
+						<Setter Property="Margin" Value="6" />
+						<Setter Property="Padding" Value="3" />
+					</Style>
+				</StackPanel.Resources>
+				<Button Content="OK" IsDefault="True" Click="OK_Click" TabIndex="1" />
+				<Button Content="Cancel" IsCancel="True" TabIndex="2" />
+			</StackPanel>
+		</DockPanel>
+		<ListBox x:Name="dummy" TabIndex="0">
+			<System:String>This listbox will be replaced with an OptionsPage control.</System:String>
+		</ListBox>
+	</DockPanel>
+</m:ExtendedDialog>

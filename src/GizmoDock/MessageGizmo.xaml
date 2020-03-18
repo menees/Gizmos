@@ -1,0 +1,36 @@
+﻿<g:Gizmo
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:g="http://menees.com/gizmos"
+		xmlns:local="clr-namespace:Menees.Gizmos" x:Class="Menees.Gizmos.MessageGizmo"
+		mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300"
+		x:ClassModifier="internal">
+	<g:Gizmo.Resources>
+		<BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+	</g:Gizmo.Resources>
+	<Border BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}"
+		Background="{DynamicResource {x:Static SystemColors.InfoBrushKey}}"
+		BorderThickness="2" CornerRadius="8">
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition/>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
+			<Polygon Stroke="White" StrokeThickness="2" Fill="Red" Points="4.5,0 10.5,0 15,4.5 15,10.5 10.5,15 4.5,15 0,10.5 0,4.5" Margin="4"
+						Visibility="{Binding IsErrorMessage, Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MessageGizmo}}}" VerticalAlignment="Center">
+				<Polygon.Effect>
+					<DropShadowEffect Opacity="0.5" ShadowDepth="2" />
+				</Polygon.Effect>
+			</Polygon>
+			<TextBlock Grid.Column="1" TextWrapping="Wrap" Margin="4"
+					   Text="{Binding Message, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MessageGizmo}}}" VerticalAlignment="Center"/>
+			<Button Grid.Row="1" Grid.Column="1" Content="_Close" Margin="4" Padding="20,2" HorizontalAlignment="Center" Click="Close_Click" IsCancel="True" IsDefault="True"/>
+		</Grid>
+	</Border>
+</g:Gizmo>

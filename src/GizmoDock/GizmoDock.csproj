@@ -9,6 +9,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Menees.Gizmos.Sdk\Menees.Gizmos.Sdk.csproj" />
+		<ProjectReference Include="..\Menees.Gizmos.Standard\Menees.Gizmos.Standard.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

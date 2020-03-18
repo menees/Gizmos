@@ -1,3 +1,5 @@
+![windows build](https://github.com/bmenees/Gizmos/workflows/windows%20build/badge.svg)
+
 # Gizmos
 Gizmos is a [widget engine](https://en.wikipedia.org/wiki/Software_widget#Widget_engine) for the Windows desktop;
 it runs tiny widgets/gadgets/applets, i.e., "gizmos", near the edge of the screen. Microsoft deprecated its own

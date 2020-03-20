@@ -22,6 +22,7 @@
 	using System.Windows.Media.Imaging;
 	using System.Windows.Navigation;
 	using System.Windows.Shapes;
+	using Menees.Windows;
 	using Menees.Windows.Presentation;
 	using Microsoft.Win32;
 
@@ -335,8 +336,7 @@
 			{
 				// From: http://stackoverflow.com/questions/234231/creating-application-shortcut-in-a-directory
 				// WshShortcut Object Properties and Methods: http://msdn.microsoft.com/en-us/library/f5y78918.aspx
-				Type t = Type.GetTypeFromProgID("WScript.Shell");
-				dynamic shell = Activator.CreateInstance(t);
+				dynamic shell = ComUtility.CreateInstance("WScript.Shell");
 				try
 				{
 					var link = shell.CreateShortcut(shortcutFileName);
@@ -349,12 +349,12 @@
 					}
 					finally
 					{
-						Marshal.FinalReleaseComObject(link);
+						ComUtility.FinalRelease(link);
 					}
 				}
 				finally
 				{
-					Marshal.FinalReleaseComObject(shell);
+					ComUtility.FinalRelease(shell);
 				}
 			}
 

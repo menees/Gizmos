@@ -1,4 +1,4 @@
-![windows build](https://github.com/bmenees/Gizmos/workflows/windows%20build/badge.svg)
+![windows build](https://github.com/menees/Gizmos/workflows/windows%20build/badge.svg)
 
 # Gizmos
 Gizmos is a [widget engine](https://en.wikipedia.org/wiki/Software_widget#Widget_engine) for the Windows desktop;

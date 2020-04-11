@@ -37,7 +37,7 @@
 		<When Condition=" '$(TargetFramework)' == 'net45' ">
 			<ItemGroup>
 				<Compile Remove="Weather\Provider.Core.cs" />
-				<Content Include="Weather\Provider.Core.cs" />
+				<None Include="Weather\Provider.Core.cs" />
 
 				<!-- This includes WebRequestHandler. -->
 				<Reference Include="System.Net.Http.WebRequest" />
@@ -46,7 +46,7 @@
 		<Otherwise>
 			<ItemGroup>
 				<Compile Remove="Weather\Provider.Framework.cs" />
-				<Content Include="Weather\Provider.Framework.cs" />
+				<None Include="Weather\Provider.Framework.cs" />
 			</ItemGroup>
 		</Otherwise>
 	</Choose>

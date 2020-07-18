@@ -54,7 +54,7 @@
 
 		private void About_Click(object sender, RoutedEventArgs e)
 		{
-			WindowsUtility.ShowAboutBox(this, Assembly.GetExecutingAssembly());
+			WindowsUtility.ShowAboutBox(this, Assembly.GetExecutingAssembly(), nameof(Gizmos));
 		}
 
 		private void Dialog_Loaded(object sender, RoutedEventArgs e)

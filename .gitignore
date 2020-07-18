@@ -342,3 +342,6 @@ healthchecksdb
 
 # Local shortcuts for interactive testing
 Shortcuts/
+
+# Local debugging settings
+/src/GizmoDock/Properties/launchSettings.json

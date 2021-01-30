@@ -35,10 +35,11 @@ namespace Menees.Gizmos.Weather
 	{
 		#region Private Data Members
 
-		private DispatcherTimer timer;
+		private readonly DispatcherTimer timer;
 		private Settings settings;
 		private WeatherInfo weather;
 		private bool showingError;
+		private Provider provider;
 
 		#endregion
 
@@ -51,8 +52,7 @@ namespace Menees.Gizmos.Weather
 			this.settings = Settings.Default;
 			this.weather = new WeatherInfo(this.settings);
 
-			this.timer = new DispatcherTimer();
-			this.timer.Interval = Properties.Settings.Default.WeatherRefreshInterval;
+			this.timer = new DispatcherTimer { Interval = Properties.Settings.Default.WeatherRefreshInterval };
 			this.timer.Tick += (s, e) => this.UpdateDisplay();
 		}
 
@@ -70,6 +70,7 @@ namespace Menees.Gizmos.Weather
 			set
 			{
 				this.settings = value ?? Settings.Default;
+				this.provider = null;
 				this.UpdateDisplay();
 			}
 		}
@@ -86,6 +87,7 @@ namespace Menees.Gizmos.Weather
 			this.settings = new Settings();
 			this.settings.Load(settings);
 
+			this.provider = null;
 			this.timer.IsEnabled = true;
 
 			this.Dispatcher.InvokeAsync(this.UpdateDisplay, DispatcherPriority.ApplicationIdle);
@@ -110,8 +112,12 @@ namespace Menees.Gizmos.Weather
 			{
 				using (new WaitCursor())
 				{
-					Provider provider = Provider.Create();
-					this.weather = provider.GetWeatherAsync(this.settings).Result;
+					if (this.provider == null)
+					{
+						this.provider = Provider.Create();
+					}
+
+					this.weather = this.provider.GetWeatherAsync(this.settings).Result;
 
 					// Changing the root DataContext will cause all of the bindings to update.
 					this.DataContext = this.weather;

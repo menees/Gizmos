@@ -85,7 +85,7 @@ namespace Menees.Gizmos.Weather
 			return result;
 		}
 
-		protected async Task<Tuple<XElement, string>> RequestXmlAsync(Uri requestUri)
+		protected async Task<Tuple<XElement, string>> RequestXmlAsync(Uri requestUri, Func<string, XElement> convertBodyToXml = null)
 		{
 			XElement result = null;
 			string errorMessage = null;
@@ -102,7 +102,7 @@ namespace Menees.Gizmos.Weather
 
 					client.Timeout = Properties.Settings.Default.HttpRequestTimeout;
 					body = await client.GetStringAsync(requestUri).ConfigureAwait(false);
-					result = XElement.Parse(body);
+					result = convertBodyToXml != null ? convertBodyToXml(body) : XElement.Parse(body);
 				}
 			}
 			catch (HttpRequestException ex)
@@ -133,9 +133,9 @@ namespace Menees.Gizmos.Weather
 			return Tuple.Create(result, errorMessage);
 		}
 
-		protected async Task<XElement> GetXmlAsync(Uri requestUri)
+		protected async Task<XElement> GetXmlAsync(Uri requestUri, Func<string, XElement> convertBodyToXml = null)
 		{
-			var tuple = await this.RequestXmlAsync(requestUri).ConfigureAwait(false);
+			var tuple = await this.RequestXmlAsync(requestUri, convertBodyToXml).ConfigureAwait(false);
 			XElement result = tuple.Item1;
 			if (!string.IsNullOrEmpty(tuple.Item2))
 			{

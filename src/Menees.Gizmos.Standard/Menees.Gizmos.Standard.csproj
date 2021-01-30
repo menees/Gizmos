@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
 	<PropertyGroup>
-		<TargetFrameworks>netcoreapp3.1;net45</TargetFrameworks>
+		<TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
 		<UseWPF>true</UseWPF>
 	</PropertyGroup>
 
@@ -34,7 +34,7 @@
 	</ItemGroup>
 
 	<Choose>
-		<When Condition=" '$(TargetFramework)' == 'net45' ">
+		<When Condition=" '$(TargetFramework)' == 'net472' ">
 			<ItemGroup>
 				<Compile Remove="Weather\Provider.Core.cs" />
 				<None Include="Weather\Provider.Core.cs" />

@@ -8,6 +8,7 @@ namespace Menees.Gizmos.Weather
 	using System.Diagnostics;
 	using System.Linq;
 	using System.Text;
+	using System.Text.RegularExpressions;
 	using System.Threading.Tasks;
 	using System.Xml;
 	using System.Xml.Linq;
@@ -17,6 +18,12 @@ namespace Menees.Gizmos.Weather
 
 	internal sealed class GovProvider : Provider
 	{
+		#region Private Data Members
+
+		private Dictionary<string, object> locationRequestParameters;
+
+		#endregion
+
 		#region Constructors
 
 		public GovProvider()
@@ -38,46 +45,36 @@ namespace Menees.Gizmos.Weather
 			}
 			else
 			{
-				// API docs: http://graphical.weather.gov/xml/rest.php
-				Uri resolveZipUri = BuildlUri(
-					"http://graphical.weather.gov/xml/sample_products/browser_interface/ndfdXMLclient.php",
-					"listZipCodeList",
-					this.Settings.UserLocation);
-				XElement zipData = await this.GetXmlAsync(resolveZipUri).ConfigureAwait(false);
-				if (this.IsDwml(zipData))
+				if (this.locationRequestParameters == null)
 				{
-					var latLongParameters = GetLatLongParameters(zipData);
-					if (latLongParameters == null)
-					{
-						this.Weather.SetError("Unable to determine latitude and longitude.");
-					}
-					else
-					{
-						var parameters = new Dictionary<string, object>(latLongParameters);
-						parameters.Add("unit", 0);
-						parameters.Add("lg", "english");
-						parameters.Add("FcstType", "dwml");
+					this.locationRequestParameters = await this.CacheLocationRequestParametersAsync().ConfigureAwait(false);
+				}
 
-						Uri weatherDataUri = BuildlUri("http://forecast.weather.gov/MapClick.php", parameters);
-						XElement weatherData = await this.GetXmlAsync(weatherDataUri).ConfigureAwait(false);
-						if (this.IsDwml(weatherData))
+				if (this.locationRequestParameters == null)
+				{
+					this.Weather.SetError("Unable to determine latitude and longitude.");
+				}
+				else
+				{
+					Uri weatherDataUri = BuildlUri("http://forecast.weather.gov/MapClick.php", this.locationRequestParameters);
+					XElement weatherData = await this.GetXmlAsync(weatherDataUri).ConfigureAwait(false);
+					if (this.IsDwml(weatherData))
+					{
+						var dataElements = weatherData.Elements("data");
+						this.Weather.Current = this.GetCurrent(dataElements.FirstOrDefault(e => (string)e.Attribute("type") == "current observations"));
+						this.Weather.DailyForecasts = this.GetForecasts(dataElements.FirstOrDefault(e => (string)e.Attribute("type") == "forecast"));
+
+						// After mid-day, Weather.gov stops giving the high temp and icon forecast for today, so we'll get it from Current.
+						ForecastInfo todaysForecast = this.Weather.DailyForecasts.FirstOrDefault(f => f.IsToday);
+						if (todaysForecast != null && this.Weather.Current != CurrentInfo.Missing)
 						{
-							var dataElements = weatherData.Elements("data");
-							this.Weather.Current = this.GetCurrent(dataElements.FirstOrDefault(e => (string)e.Attribute("type") == "current observations"));
-							this.Weather.DailyForecasts = this.GetForecasts(dataElements.FirstOrDefault(e => (string)e.Attribute("type") == "forecast"));
-
-							// After mid-day, Weather.gov stops giving the high temp and icon forecast for today, so we'll get it from Current.
-							ForecastInfo todaysForecast = this.Weather.DailyForecasts.FirstOrDefault(f => f.IsToday);
-							if (todaysForecast != null && this.Weather.Current != CurrentInfo.Missing)
+							todaysForecast.ImageUri = this.Weather.Current.ImageUri;
+							if (todaysForecast.High == null)
 							{
-								todaysForecast.ImageUri = this.Weather.Current.ImageUri;
-								if (todaysForecast.High == null)
+								todaysForecast.High = this.Weather.Current.TemperatureValue;
+								if (todaysForecast.High < todaysForecast.Low)
 								{
-									todaysForecast.High = this.Weather.Current.TemperatureValue;
-									if (todaysForecast.High < todaysForecast.Low)
-									{
-										todaysForecast.Low = todaysForecast.High;
-									}
+									todaysForecast.Low = todaysForecast.High;
 								}
 							}
 						}
@@ -90,12 +87,6 @@ namespace Menees.Gizmos.Weather
 
 		#region Private Methods
 
-		private static Uri BuildlUri(string page, string key, string value)
-		{
-			Uri result = BuildlUri(page, new Dictionary<string, object> { { key, value } });
-			return result;
-		}
-
 		private static Uri BuildlUri(string page, IDictionary<string, object> parameters)
 		{
 			UriBuilder builder = new UriBuilder(page)
@@ -103,29 +94,6 @@ namespace Menees.Gizmos.Weather
 				Query = string.Join("&", parameters.Select(pair => string.Format("{0}={1}", pair.Key, pair.Value ?? pair.Key))),
 			};
 			Uri result = builder.Uri;
-			return result;
-		}
-
-		private static Dictionary<string, object> GetLatLongParameters(XElement zipData)
-		{
-			Dictionary<string, object> result = null;
-
-			XElement element = zipData.Element("latLonList");
-			if (element != null)
-			{
-				string text = element.Value;
-				if (!string.IsNullOrEmpty(text))
-				{
-					string[] tokens = text.Split(',');
-					if (tokens.Length == 2 && decimal.TryParse(tokens[0], out decimal latitude) && decimal.TryParse(tokens[1], out decimal longitude))
-					{
-						result = new Dictionary<string, object>();
-						result.Add("lat", latitude);
-						result.Add("lon", longitude);
-					}
-				}
-			}
-
 			return result;
 		}
 
@@ -255,6 +223,45 @@ namespace Menees.Gizmos.Weather
 							.ToList();
 						result.Add(name, periods);
 					}
+				}
+			}
+
+			return result;
+		}
+
+		private async Task<Dictionary<string, object>> CacheLocationRequestParametersAsync()
+		{
+			var geocodeParameters = new Dictionary<string, object>
+			{
+				["text"] = this.Settings.UserLocation + ",+USA",
+				["f"] = "json",
+			};
+
+			Uri geocodeUri = BuildlUri("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find", geocodeParameters);
+			XElement geocode = await this.GetXmlAsync(geocodeUri, body => new XElement("Body", body)).ConfigureAwait(false);
+
+			Dictionary<string, object> result = null;
+			if (geocode != null)
+			{
+				// Targeting .NET 4.5 limits our JSON parsing options, so I'll just pull out the two values I need with a Regex.
+				string json = geocode.Value.Replace(" ", string.Empty).Replace("\t", string.Empty).Replace("\r", string.Empty).Replace("\n", string.Empty);
+				Regex regex = new Regex(@"(?n)""geometry"":{""x"":(?<Long>-?\d+(\.\d+)?),""y"":(?<Lat>-?\d+(\.\d+)?)}");
+				Match match = regex.Match(json);
+
+				const int RequiredGroupCount = 3; // Whole pattern, Long, Lat
+				if (match.Success
+					&& match.Groups.Count == RequiredGroupCount
+					&& decimal.TryParse(match.Groups[1].Value, out decimal longitude)
+					&& decimal.TryParse(match.Groups[2].Value, out decimal latitude))
+				{
+					result = new Dictionary<string, object>
+					{
+						["lat"] = latitude,
+						["lon"] = longitude,
+						["unit"] = 0,
+						["lg"] = "english",
+						["FcstType"] = "dwml",
+					};
 				}
 			}
 

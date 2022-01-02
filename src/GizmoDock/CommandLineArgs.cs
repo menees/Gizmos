@@ -18,10 +18,10 @@ namespace Menees.Gizmos
 
 		public CommandLineArgs(string[] args, IDock dock)
 		{
-			CommandLine parser = new CommandLine(false);
+			CommandLine parser = new(false);
 			parser.AddHeader("Usage: GizmoDock /asm Assembly.dll /type GizmoType [/inst InstanceName] [/ShowInTaskbar]");
 
-			string assemblyName = null;
+			string? assemblyName = null;
 			parser.AddSwitch(
 				new[] { "Assembly", "Asm" },
 				"The name of the assembly.",
@@ -37,13 +37,13 @@ namespace Menees.Gizmos
 					}
 				});
 
-			string typeName = null;
+			string? typeName = null;
 			parser.AddSwitch(
 				"Type",
 				"The Gizmo-derived class to load.",
 				(value, errors) => typeName = value);
 
-			string instanceName = null;
+			string? instanceName = null;
 			parser.AddSwitch(
 				"Instance",
 				"The name for this Gizmo instance.",
@@ -58,7 +58,7 @@ namespace Menees.Gizmos
 
 			parser.AddFinalValidation(errors =>
 			{
-				if (!string.IsNullOrEmpty(assemblyName) && !string.IsNullOrEmpty(typeName))
+				if (assemblyName.IsNotEmpty() && typeName.IsNotEmpty())
 				{
 					this.Gizmo = Gizmo.Create(dock, assemblyName, typeName, instanceName, errors);
 				}
@@ -74,7 +74,8 @@ namespace Menees.Gizmos
 				}
 
 				// Pass an empty array so Gizmo.Create can't add any errors to it.  It should never need to.
-				MessageGizmo messageGizmo = (MessageGizmo)Gizmo.Create(dock, typeof(MessageGizmo), null, CollectionUtility.EmptyArray<string>());
+				MessageGizmo messageGizmo = (MessageGizmo?)Gizmo.Create(dock, typeof(MessageGizmo), null, CollectionUtility.EmptyArray<string>())
+					?? throw Exceptions.NewInvalidOperationException($"Unable to create {nameof(MessageGizmo)}.");
 				messageGizmo.Message = parser.CreateMessage().Trim();
 				messageGizmo.IsErrorMessage = parseResult != CommandLineParseResult.HelpRequested;
 				this.Gizmo = messageGizmo;
@@ -92,7 +93,7 @@ namespace Menees.Gizmos
 
 		#region Public Properties
 
-		public Gizmo Gizmo { get; private set; }
+		public Gizmo? Gizmo { get; private set; }
 
 		public bool ShowInTaskbar { get; private set; }
 

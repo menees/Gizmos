@@ -29,9 +29,9 @@ namespace Menees.Gizmos.Weather
 
 		#region Protected Properties
 
-		protected WeatherInfo Weather { get; private set; }
+		protected WeatherInfo? Weather { get; private set; }
 
-		protected Settings Settings => this.Weather.Settings;
+		protected Settings? Settings => this.Weather?.Settings;
 
 		#endregion
 
@@ -43,7 +43,7 @@ namespace Menees.Gizmos.Weather
 			return result;
 		}
 
-		public async Task<WeatherInfo> GetWeatherAsync(Settings settings)
+		public async Task<WeatherInfo?> GetWeatherAsync(Settings settings)
 		{
 			await this.UpdateWeatherAsync(new WeatherInfo(settings)).ConfigureAwait(false);
 			return this.Weather;
@@ -59,9 +59,9 @@ namespace Menees.Gizmos.Weather
 
 		#region Protected Methods
 
-		protected static string BuildPercentage(string value)
+		protected static string? BuildPercentage(string? value)
 		{
-			string result = null;
+			string? result = null;
 
 			if (!string.IsNullOrEmpty(value))
 			{
@@ -73,24 +73,24 @@ namespace Menees.Gizmos.Weather
 
 		protected abstract Task UpdateAsync();
 
-		protected string BuildTemperature(string value)
+		protected string? BuildTemperature(string? value)
 		{
-			string result = null;
+			string? result = null;
 
 			if (!string.IsNullOrEmpty(value))
 			{
-				result = value + '\xB0' + (this.Settings.UseFahrenheit ? 'F' : 'C');
+				result = value + '\xB0' + ((this.Settings?.UseFahrenheit ?? false) ? 'F' : 'C');
 			}
 
 			return result;
 		}
 
-		protected async Task<Tuple<XElement, string>> RequestXmlAsync(Uri requestUri, Func<string, XElement> convertBodyToXml = null)
+		protected async Task<Tuple<XElement?, string?>> RequestXmlAsync(Uri requestUri, Func<string, XElement>? convertBodyToXml = null)
 		{
-			XElement result = null;
-			string errorMessage = null;
+			XElement? result = null;
+			string? errorMessage = null;
 
-			string body = null;
+			string? body = null;
 			try
 			{
 				using (HttpClient client = CreateNonCachingHttpClient())
@@ -133,13 +133,13 @@ namespace Menees.Gizmos.Weather
 			return Tuple.Create(result, errorMessage);
 		}
 
-		protected async Task<XElement> GetXmlAsync(Uri requestUri, Func<string, XElement> convertBodyToXml = null)
+		protected async Task<XElement?> GetXmlAsync(Uri requestUri, Func<string, XElement>? convertBodyToXml = null)
 		{
 			var tuple = await this.RequestXmlAsync(requestUri, convertBodyToXml).ConfigureAwait(false);
-			XElement result = tuple.Item1;
-			if (!string.IsNullOrEmpty(tuple.Item2))
+			XElement? result = tuple.Item1;
+			if (tuple.Item2.IsNotEmpty())
 			{
-				this.Weather.SetError(tuple.Item2);
+				this.Weather?.SetError(tuple.Item2);
 			}
 
 			return result;

@@ -33,9 +33,9 @@
 
 			// Create the IDock window up front because we need it to initialize a Gizmo.
 			// However, we may not show this window
-			MainWindow dock = new MainWindow();
+			MainWindow dock = new();
 
-			CommandLineArgs args = new CommandLineArgs(e.Args, dock);
+			CommandLineArgs args = new(e.Args, dock);
 			if (args.CloseAll)
 			{
 				CloseOtherGizmoDocks();
@@ -54,8 +54,7 @@
 
 			// The Window.Closing event may not fire during logoff or shutdown,
 			// so we need to poke it manually.
-			MainWindow window = this.MainWindow as MainWindow;
-			if (window != null)
+			if (this.MainWindow is MainWindow window)
 			{
 				window.BeginClosing(e);
 			}

@@ -1,11 +1,4 @@
-﻿[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage(
-	"Microsoft.Design",
-	"CA1020:AvoidNamespacesWithFewTypes",
-	Scope = "namespace",
-	Target = "Menees.Gizmos.Weather",
-	Justification = "I want each gizmo in its own namespace.")]
-
-namespace Menees.Gizmos.Weather
+﻿namespace Menees.Gizmos.Weather
 {
 	#region Using Directives
 
@@ -37,9 +30,9 @@ namespace Menees.Gizmos.Weather
 
 		private readonly DispatcherTimer timer;
 		private Settings settings;
-		private WeatherInfo weather;
+		private WeatherInfo? weather;
 		private bool showingError;
-		private Provider provider;
+		private Provider? provider;
 
 		#endregion
 
@@ -121,7 +114,7 @@ namespace Menees.Gizmos.Weather
 
 					// Changing the root DataContext will cause all of the bindings to update.
 					this.DataContext = this.weather;
-					this.UpdateTimer(this.weather.IsValid);
+					this.UpdateTimer(this.weather?.IsValid ?? false);
 				}
 			}
 			catch (Exception ex)
@@ -137,7 +130,7 @@ namespace Menees.Gizmos.Weather
 					this.showingError = true;
 					try
 					{
-						StringBuilder sb = new StringBuilder();
+						StringBuilder sb = new();
 						Exceptions.ForEach(ex, (exception, depth, parent) => sb.Append('\t', depth).Append(exception.Message).AppendLine());
 						if (ApplicationInfo.IsDebugBuild)
 						{

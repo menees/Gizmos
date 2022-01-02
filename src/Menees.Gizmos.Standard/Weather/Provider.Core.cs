@@ -18,7 +18,7 @@
 			// .NET Core doesn't support WebRequestHandler, but it's default caching
 			// behavior is equivalent to RequestCacheLevel.BypassCache.
 			// https://stackoverflow.com/a/44060627/1882616
-			HttpClient result = new HttpClient();
+			HttpClient result = new();
 			return result;
 		}
 

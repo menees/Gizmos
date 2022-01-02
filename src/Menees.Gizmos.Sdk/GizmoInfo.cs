@@ -24,13 +24,13 @@ namespace Menees.Gizmos
 		/// <param name="gizmoType">A type derived from <see cref="Gizmo"/>.</param>
 		public GizmoInfo(Type gizmoType)
 		{
-			Conditions.RequireReference(gizmoType, () => gizmoType);
-			Conditions.RequireArgument(gizmoType.IsSubclassOf(typeof(Gizmo)), "gizmoType must derive from Gizmo.", () => gizmoType);
+			Conditions.RequireReference(gizmoType, nameof(gizmoType));
+			Conditions.RequireArgument(gizmoType.IsSubclassOf(typeof(Gizmo)), "gizmoType must derive from Gizmo.", nameof(gizmoType));
 
 			this.GizmoType = gizmoType;
 
 			// Use the info specified at compile time if it's available.
-			GizmoInfoAttribute attribute = gizmoType.GetCustomAttribute<GizmoInfoAttribute>(false);
+			GizmoInfoAttribute? attribute = gizmoType.GetCustomAttribute<GizmoInfoAttribute>(false);
 			if (attribute != null)
 			{
 				this.GizmoName = attribute.GizmoName;
@@ -40,11 +40,11 @@ namespace Menees.Gizmos
 
 			// See if the type overrides the OnCreateOptionsPage method.
 			const string MethodName = nameof(Gizmo.OnCreateOptionsPage);
-			MethodInfo method = gizmoType.GetMethod(MethodName, BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Instance);
+			MethodInfo? method = gizmoType.GetMethod(MethodName, BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Instance);
 			this.HasOptions = method != null;
 
 			// Make sure the gizmo name isn't crap.
-			if (string.IsNullOrWhiteSpace(this.GizmoName))
+			if (this.GizmoName.IsBlank())
 			{
 				this.GizmoName = gizmoType.Name;
 			}

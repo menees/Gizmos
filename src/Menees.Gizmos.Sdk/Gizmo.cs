@@ -24,7 +24,7 @@ namespace Menees.Gizmos
 	{
 		#region Private Data Members
 
-		private GizmoInfo gizmoInfo;
+		private GizmoInfo? gizmoInfo;
 
 		#endregion
 
@@ -33,7 +33,7 @@ namespace Menees.Gizmos
 		/// <summary>
 		/// Gets the dock that is hosting this gizmo.
 		/// </summary>
-		public IDock Dock { get; private set; }
+		public IDock? Dock { get; private set; }
 
 		/// <summary>
 		/// Gets the instance name associated with this gizmo.
@@ -42,7 +42,7 @@ namespace Menees.Gizmos
 		/// For single-instance gizmos, this can be null.  For multi-instance gizmos
 		/// this is used to save unique settings per instance (including window position).
 		/// </remarks>
-		public string InstanceName { get; private set; }
+		public string? InstanceName { get; private set; }
 
 		/// <summary>
 		/// Gets the cached metadata about this gizmo.
@@ -74,17 +74,17 @@ namespace Menees.Gizmos
 		/// <param name="errors">A collection to add error message to if necessary.</param>
 		/// <returns>A new gizmo instance if it was created successfully.
 		/// Null if errors were added to the <paramref name="errors"/> collection.</returns>
-		public static Gizmo Create(IDock dock, string assemblyName, string typeName, string instanceName, IList<string> errors)
+		public static Gizmo? Create(IDock dock, string assemblyName, string typeName, string? instanceName, IList<string> errors)
 		{
-			Conditions.RequireReference(dock, () => dock);
-			Conditions.RequireString(typeName, () => typeName);
+			Conditions.RequireReference(dock, nameof(dock));
+			Conditions.RequireString(typeName, nameof(typeName));
 
-			Gizmo result = null;
+			Gizmo? result = null;
 
-			Assembly assembly = LoadAssembly(assemblyName, errors);
+			Assembly? assembly = LoadAssembly(assemblyName, errors);
 			if (assembly != null)
 			{
-				Type type = assembly.GetType(typeName, false);
+				Type? type = assembly.GetType(typeName, false);
 				if (type == null)
 				{
 					// If they didn't give us a fully-qualified name, look for matching class names.
@@ -124,12 +124,12 @@ namespace Menees.Gizmos
 		/// <param name="errors">A collection to add error message to if necessary.</param>
 		/// <returns>A new gizmo instance if it was created successfully.
 		/// Null if errors were added to the <paramref name="errors"/> collection.</returns>
-		public static Gizmo Create(IDock dock, Type type, string instanceName, IList<string> errors)
+		public static Gizmo? Create(IDock dock, Type type, string? instanceName, IList<string> errors)
 		{
-			Conditions.RequireReference(dock, () => dock);
-			Conditions.RequireReference(type, () => type);
+			Conditions.RequireReference(dock, nameof(dock));
+			Conditions.RequireReference(type, nameof(type));
 
-			Gizmo result = null;
+			Gizmo? result = null;
 
 			if (!type.IsSubclassOf(typeof(Gizmo)))
 			{
@@ -137,7 +137,7 @@ namespace Menees.Gizmos
 			}
 			else
 			{
-				GizmoInfo info = new GizmoInfo(type);
+				GizmoInfo info = new(type);
 				if (info.IsSingleInstance && !string.IsNullOrEmpty(instanceName))
 				{
 					errors.Add(info.GizmoName + " is a single instance gizmo, so an instance name isn't supported.");
@@ -150,10 +150,13 @@ namespace Menees.Gizmos
 				{
 					try
 					{
-						result = (Gizmo)Activator.CreateInstance(type);
-						result.gizmoInfo = info;
-						result.Dock = dock;
-						result.InstanceName = instanceName;
+						result = (Gizmo?)Activator.CreateInstance(type);
+						if (result != null)
+						{
+							result.gizmoInfo = info;
+							result.Dock = dock;
+							result.InstanceName = instanceName;
+						}
 					}
 					catch (MissingMethodException ex)
 					{
@@ -175,11 +178,11 @@ namespace Menees.Gizmos
 		/// <param name="assemblyName">The name of the assembly to load.</param>
 		/// <param name="errors">A collection to add error message to if necessary.</param>
 		/// <returns>A new list of GizmoInfos.</returns>
-		public static IList<GizmoInfo> GetGizmoTypes(string assemblyName, IList<string> errors)
+		public static IList<GizmoInfo>? GetGizmoTypes(string assemblyName, IList<string> errors)
 		{
-			IList<GizmoInfo> result = null;
+			IList<GizmoInfo>? result = null;
 
-			Assembly assembly = LoadAssembly(assemblyName, errors);
+			Assembly? assembly = LoadAssembly(assemblyName, errors);
 			if (assembly != null)
 			{
 				result = assembly.ExportedTypes
@@ -197,7 +200,7 @@ namespace Menees.Gizmos
 		/// Creates a new <see cref="OptionsPage"/> if <see cref="GizmoInfo.HasOptions"/> is true.
 		/// </summary>
 		/// <returns>The base implementation always returns null.  Derived classes should override <see cref="OnCreateOptionsPage"/>.</returns>
-		public OptionsPage CreateOptionsPage()
+		public OptionsPage? CreateOptionsPage()
 		{
 			if (!this.Info.HasOptions)
 			{
@@ -229,12 +232,11 @@ namespace Menees.Gizmos
 		/// Gets the gizmo's loggable properties, typically passed to a <see cref="Log"/> method.
 		/// </summary>
 		/// <returns>A new dictionary with the gizmo's important properties to log.</returns>
-		[SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "Creates a new dictionary on each call.")]
 		public IDictionary<string, object> GetLogProperties()
 		{
-			Dictionary<string, object> result = new Dictionary<string, object>();
+			Dictionary<string, object> result = new();
 			result.Add(nameof(Gizmo), this.Info.GizmoName);
-			if (!this.Info.IsSingleInstance)
+			if (!this.Info.IsSingleInstance && !this.InstanceName.IsBlank())
 			{
 				result.Add("Instance", this.InstanceName);
 			}
@@ -274,7 +276,7 @@ namespace Menees.Gizmos
 		/// Creates a new <see cref="OptionsPage"/> if <see cref="GizmoInfo.HasOptions"/> is true.
 		/// </summary>
 		/// <returns>The base implementation always returns null.  Derived classes should override <see cref="OnCreateOptionsPage"/>.</returns>
-		protected internal virtual OptionsPage OnCreateOptionsPage() => null;
+		protected internal virtual OptionsPage? OnCreateOptionsPage() => null;
 
 		/// <summary>
 		/// Called when the gizmo should load its settings.
@@ -296,13 +298,13 @@ namespace Menees.Gizmos
 
 		#region Private Methods
 
-		private static Assembly LoadAssembly(string assemblyName, IList<string> errors)
+		private static Assembly? LoadAssembly(string assemblyName, IList<string> errors)
 		{
-			Conditions.RequireString(assemblyName, () => assemblyName);
-			Conditions.RequireReference(errors, () => errors);
+			Conditions.RequireString(assemblyName, nameof(assemblyName));
+			Conditions.RequireReference(errors, nameof(errors));
 
-			Assembly assembly = null;
-			Exception exception = null;
+			Assembly? assembly = null;
+			Exception? exception = null;
 			try
 			{
 				AssemblyName name = AssemblyName.GetAssemblyName(assemblyName);
@@ -350,7 +352,7 @@ namespace Menees.Gizmos
 			if (exception != null)
 			{
 				errors.Add(exception.Message);
-				Dictionary<string, object> properties = new Dictionary<string, object>();
+				Dictionary<string, object> properties = new();
 				properties.Add("AssemblyName", assemblyName);
 				Log.Error(typeof(Gizmo), "Error loading assembly.", exception, properties);
 			}
@@ -362,9 +364,9 @@ namespace Menees.Gizmos
 
 		#region Private Event Handlers
 
-		private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+		private static Assembly? CurrentDomain_AssemblyResolve(object? sender, ResolveEventArgs args)
 		{
-			Assembly result = null;
+			Assembly? result = null;
 
 			// We load the Gizmo assembly into the LoadFrom context, but if it needs to use types from
 			// the Load context, we have to handle the assembly resolution manually.  .NET won't look

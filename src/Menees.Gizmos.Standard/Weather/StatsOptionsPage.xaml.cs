@@ -24,7 +24,7 @@
 	{
 		#region Private Data Members
 
-		private Provider provider;
+		private readonly Provider provider;
 
 		#endregion
 

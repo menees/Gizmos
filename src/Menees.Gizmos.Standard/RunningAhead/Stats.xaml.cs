@@ -1,17 +1,11 @@
-﻿[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage(
-	"Microsoft.Design",
-	"CA1020:AvoidNamespacesWithFewTypes",
-	Scope = "namespace",
-	Target = "Menees.Gizmos.RunningAhead",
-	Justification = "I want each gizmo in its own namespace.")]
-
-namespace Menees.Gizmos.RunningAhead
+﻿namespace Menees.Gizmos.RunningAhead
 {
 	#region Using Directives
 
 	using System;
 	using System.Collections.Generic;
 	using System.Diagnostics;
+	using System.Diagnostics.CodeAnalysis;
 	using System.Linq;
 	using System.Net;
 	using System.Net.Http;
@@ -63,8 +57,10 @@ namespace Menees.Gizmos.RunningAhead
 
 			this.ClearDisplay();
 
-			this.timer = new DispatcherTimer();
-			this.timer.Interval = this.RefreshInterval;
+			this.timer = new DispatcherTimer
+			{
+				Interval = this.RefreshInterval,
+			};
 			this.timer.Tick += (s, e) => this.UpdateDisplay();
 		}
 
@@ -72,13 +68,13 @@ namespace Menees.Gizmos.RunningAhead
 
 		#region Internal Properties
 
-		internal string LogId { get; set; }
+		internal string? LogId { get; set; }
 
 		internal TimeSpan RefreshInterval { get; set; }
 
 		internal bool UseDefaultHeader { get; set; }
 
-		internal string Header { get; set; }
+		internal string? Header { get; set; }
 
 		internal StatsFormat StatsFormat { get; set; }
 
@@ -88,7 +84,7 @@ namespace Menees.Gizmos.RunningAhead
 
 		#region Internal Methods
 
-		internal static bool ValidateLogId(string logId, out string errorMessage)
+		internal static bool ValidateLogId(string logId, out string? errorMessage)
 		{
 			errorMessage = null;
 
@@ -105,8 +101,9 @@ namespace Menees.Gizmos.RunningAhead
 						// We need to prevent redirects so we can tell whether the first request works or not.
 						// Otherwise, we'll just get back an OK after redirecting to the RA home page.
 						// http://blogs.msdn.com/b/henrikn/archive/2012/08/07/httpclient-httpclienthandler-and-httpwebrequesthandler.aspx
-						using (HttpClientHandler handler = new HttpClientHandler { AllowAutoRedirect = false })
-						using (HttpClient client = new HttpClient(handler) { Timeout = RequestTimeout })
+						using (HttpClientHandler handler = new()
+						{ AllowAutoRedirect = false })
+						using (HttpClient client = new(handler) { Timeout = RequestTimeout })
 						{
 							Task<HttpResponseMessage> task = client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
 							task.Wait();
@@ -186,7 +183,7 @@ namespace Menees.Gizmos.RunningAhead
 		{
 			base.OnLoadSettings(settings);
 
-			this.LogId = settings.GetValue(nameof(this.LogId), this.LogId);
+			this.LogId = settings.GetValueN(nameof(this.LogId), this.LogId);
 
 			string value = settings.GetValue(nameof(this.RefreshInterval), this.RefreshInterval.ToString());
 			if (TimeSpan.TryParse(value, out TimeSpan interval))
@@ -195,7 +192,7 @@ namespace Menees.Gizmos.RunningAhead
 			}
 
 			this.UseDefaultHeader = settings.GetValue(nameof(this.UseDefaultHeader), this.UseDefaultHeader);
-			this.Header = settings.GetValue(nameof(this.Header), this.Header);
+			this.Header = settings.GetValueN(nameof(this.Header), this.Header);
 			this.StatsFormat = settings.GetValue(nameof(this.StatsFormat), this.StatsFormat);
 			this.FooterFormat = settings.GetValue(nameof(this.FooterFormat), this.FooterFormat);
 
@@ -220,7 +217,7 @@ namespace Menees.Gizmos.RunningAhead
 
 		protected override OptionsPage OnCreateOptionsPage()
 		{
-			StatsOptionsPage result = new StatsOptionsPage(this);
+			StatsOptionsPage result = new(this);
 			return result;
 		}
 
@@ -228,14 +225,15 @@ namespace Menees.Gizmos.RunningAhead
 
 		#region Private Methods
 
-		private static bool GetHttpResponse(Uri uri, out string response)
+		private static bool GetHttpResponse(Uri uri, [MaybeNullWhen(false)] out string response)
 		{
 			response = null;
 			bool result = false;
 
 			try
 			{
-				using (HttpClient client = new HttpClient { Timeout = RequestTimeout })
+				using (HttpClient client = new()
+				{ Timeout = RequestTimeout })
 				{
 					Task<string> task = client.GetStringAsync(uri);
 					task.Wait();
@@ -268,11 +266,11 @@ namespace Menees.Gizmos.RunningAhead
 			return result;
 		}
 
-		private static XElement GetXhtmlData(string response, bool useRARecordsTable)
+		private static XElement? GetXhtmlData(string response, bool useRARecordsTable)
 		{
-			XElement result = null;
+			XElement? result = null;
 
-			string xmlText = null;
+			string? xmlText = null;
 			if (useRARecordsTable)
 			{
 				// Skip past the RANotes <p> since it can contain invalid XML (e.g., an '&' char instead of an &amp; entity).
@@ -307,7 +305,7 @@ namespace Menees.Gizmos.RunningAhead
 				}
 			}
 
-			if (!string.IsNullOrEmpty(xmlText))
+			if (xmlText.IsNotEmpty())
 			{
 				xmlText = xmlText.Replace("\\\"", "\"");
 				xmlText = "<RA>" + xmlText + "</RA>";
@@ -327,12 +325,12 @@ namespace Menees.Gizmos.RunningAhead
 			return result;
 		}
 
-		private static Uri GetRunningAheadUri(string section, string logId, string argument = null)
+		private static Uri GetRunningAheadUri(string section, string? logId, string? argument = null)
 		{
-			UriBuilder result = new UriBuilder("http", "www.runningahead.com");
+			UriBuilder result = new("http", "www.runningahead.com");
 
 			// If the user clicks View Log with no LogId set, then we should just show the RA home page.
-			StringBuilder path = new StringBuilder();
+			StringBuilder path = new();
 			if (!string.IsNullOrEmpty(logId))
 			{
 				path.Append(section).Append('/').Append(logId);
@@ -363,7 +361,7 @@ namespace Menees.Gizmos.RunningAhead
 
 		private void UpdateTitle()
 		{
-			string result = null;
+			string? result = null;
 			if (this.UseDefaultHeader)
 			{
 				switch (this.StatsFormat)
@@ -395,7 +393,7 @@ namespace Menees.Gizmos.RunningAhead
 
 		private void UpdateFooter()
 		{
-			string result = null;
+			string? result = null;
 
 #pragma warning disable MEN013 // Use UTC time. This displays a local time to the user.
 			DateTime now = DateTime.Now;
@@ -452,9 +450,9 @@ namespace Menees.Gizmos.RunningAhead
 				}
 
 				Uri uri = GetRunningAheadUri("scripts", this.LogId, statsPath);
-				if (GetHttpResponse(uri, out string response))
+				if (GetHttpResponse(uri, out string? response))
 				{
-					XElement xml = GetXhtmlData(response, useRARecordsTable);
+					XElement? xml = GetXhtmlData(response, useRARecordsTable);
 					if (xml != null)
 					{
 						this.ClearDataGrid();
@@ -482,10 +480,10 @@ namespace Menees.Gizmos.RunningAhead
 			this.data.RowDefinitions.Clear();
 		}
 
-		private void UpdateMessage(string message)
+		private void UpdateMessage(string? message)
 		{
 			this.ClearDataGrid();
-			TextBlock block = new TextBlock(new Run(message))
+			TextBlock block = new(new Run(message ?? string.Empty))
 			{
 				TextWrapping = TextWrapping.Wrap,
 			};
@@ -494,7 +492,7 @@ namespace Menees.Gizmos.RunningAhead
 
 		private void UpdateTwoColumnStats(XElement xml)
 		{
-			XElement table = xml.Element("table");
+			XElement? table = xml.Element("table");
 			if (table != null)
 			{
 				// The second column should auto-size to allow long text like "Half Marathon:"
@@ -528,20 +526,20 @@ namespace Menees.Gizmos.RunningAhead
 
 		private void UpdateLatestWorkouts(XElement xml)
 		{
-			XElement table = xml.Element("table");
+			XElement? table = xml.Element("table");
 			if (table != null)
 			{
 				this.data.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 				this.data.ColumnDefinitions.Add(new ColumnDefinition());
 				this.data.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-				TextBlock dateText = null;
+				TextBlock? dateText = null;
 				int tableRowNumber = 0;
 				foreach (XElement row in table.Elements("tr"))
 				{
 					if (tableRowNumber % 2 == 0)
 					{
-						XElement cell = row.Elements().FirstOrDefault();
+						XElement? cell = row.Elements().FirstOrDefault();
 						if (cell != null)
 						{
 							dateText = this.GetCellTextBlock(cell);
@@ -593,7 +591,7 @@ namespace Menees.Gizmos.RunningAhead
 		private TextBlock GetCellTextBlock(XElement cell)
 		{
 			Inline inline = this.GetCellValueInline(cell);
-			TextBlock text = new TextBlock(inline)
+			TextBlock text = new(inline)
 			{
 				TextWrapping = TextWrapping.Wrap,
 			};
@@ -604,14 +602,14 @@ namespace Menees.Gizmos.RunningAhead
 		{
 			Inline result = new Run(cell.Value);
 
-			XElement child = cell.Elements().FirstOrDefault();
+			XElement? child = cell.Elements().FirstOrDefault();
 			if (child != null && child.Name.LocalName == "a")
 			{
 				result = new Run(child.Value);
-				string href = child.GetAttributeValue("href", null);
+				string? href = child.GetAttributeValueN("href", null);
 				if (!string.IsNullOrEmpty(href))
 				{
-					Hyperlink link = new Hyperlink(result)
+					Hyperlink link = new(result)
 					{
 						NavigateUri = new Uri(href),
 					};
@@ -627,7 +625,7 @@ namespace Menees.Gizmos.RunningAhead
 		{
 			foreach (XElement element in xml.Elements())
 			{
-				TextBlock text = null;
+				TextBlock? text = null;
 				switch (element.Name.LocalName)
 				{
 					case "h4":

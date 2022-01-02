@@ -15,7 +15,7 @@ namespace Menees.Gizmos.Weather
 	{
 		#region Internal Fields
 
-		internal static readonly CurrentInfo Missing = new CurrentInfo
+		internal static readonly CurrentInfo Missing = new()
 		{
 			Description = "-----------",
 			FeelsLike = "--",
@@ -35,21 +35,21 @@ namespace Menees.Gizmos.Weather
 
 		#region Public Properties
 
-		public Uri ImageUri { get; internal set; }
+		public Uri? ImageUri { get; internal set; }
 
 		public int? TemperatureValue { get; internal set; }
 
-		public string TemperatureText { get; internal set; }
+		public string? TemperatureText { get; internal set; }
 
-		public string Description { get; internal set; }
+		public string? Description { get; internal set; }
 
-		public string Observed { get; internal set; }
+		public string? Observed { get; internal set; }
 
-		public string FeelsLike { get; internal set; }
+		public string? FeelsLike { get; internal set; }
 
-		public string Wind { get; internal set; }
+		public string? Wind { get; internal set; }
 
-		public string Humidity { get; internal set; }
+		public string? Humidity { get; internal set; }
 
 		#endregion
 	}

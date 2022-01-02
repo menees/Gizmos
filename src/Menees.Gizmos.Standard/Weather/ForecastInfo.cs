@@ -18,12 +18,12 @@ namespace Menees.Gizmos.Weather
 		/// <summary>
 		/// This won't show up as a display line on the gizmo.
 		/// </summary>
-		internal static readonly ForecastInfo Empty = new ForecastInfo();
+		internal static readonly ForecastInfo Empty = new();
 
 		/// <summary>
 		/// This will show up as a "dummy" display line on the gizmo.
 		/// </summary>
-		internal static readonly ForecastInfo Missing = new ForecastInfo
+		internal static readonly ForecastInfo Missing = new()
 		{
 			Day = "---",
 			HighLow = "--/--",
@@ -35,7 +35,7 @@ namespace Menees.Gizmos.Weather
 
 		#region Private Data Members
 
-		private string highLow;
+		private string highLow = string.Empty;
 
 		#endregion
 
@@ -51,11 +51,11 @@ namespace Menees.Gizmos.Weather
 
 		public bool IsToday { get; internal set; }
 
-		public string Day { get; internal set; }
+		public string? Day { get; internal set; }
 
-		public Uri ImageUri { get; internal set; }
+		public Uri? ImageUri { get; internal set; }
 
-		public string Description { get; internal set; }
+		public string? Description { get; internal set; }
 
 		public string HighLow
 		{
@@ -81,7 +81,7 @@ namespace Menees.Gizmos.Weather
 
 		public int? Low { get; internal set; }
 
-		public string PrecipitationText { get; internal set; }
+		public string? PrecipitationText { get; internal set; }
 
 		public double PrecipitationPercent { get; internal set; }
 

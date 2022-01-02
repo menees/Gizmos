@@ -1,11 +1,4 @@
-﻿[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage(
-	"Microsoft.Design",
-	"CA1020:AvoidNamespacesWithFewTypes",
-	Scope = "namespace",
-	Target = "Menees.Gizmos",
-	Justification = "The standard, simple gizmos can go in the root namespace.")]
-
-namespace Menees.Gizmos
+﻿namespace Menees.Gizmos
 {
 	#region Using Directives
 
@@ -44,8 +37,10 @@ namespace Menees.Gizmos
 			this.InitializeComponent();
 			this.SelectToday();
 
-			this.timer = new DispatcherTimer();
-			this.timer.Interval = CalculateTimerInterval();
+			this.timer = new DispatcherTimer
+			{
+				Interval = CalculateTimerInterval(),
+			};
 			this.timer.Tick += this.Timer_Tick;
 			this.timer.IsEnabled = true;
 		}
@@ -105,12 +100,12 @@ namespace Menees.Gizmos
 
 		#region Private Event Handlers
 
-		private void Today_Click(object sender, RoutedEventArgs e)
+		private void Today_Click(object? sender, RoutedEventArgs e)
 		{
 			this.SelectToday();
 		}
 
-		private void Timer_Tick(object sender, EventArgs e)
+		private void Timer_Tick(object? sender, EventArgs e)
 		{
 			this.SelectToday();
 
@@ -121,7 +116,7 @@ namespace Menees.Gizmos
 			this.timer.IsEnabled = true;
 		}
 
-		private void TodayBar_Click(object sender, MouseButtonEventArgs e)
+		private void TodayBar_Click(object? sender, MouseButtonEventArgs e)
 		{
 			this.DragGizmo();
 		}

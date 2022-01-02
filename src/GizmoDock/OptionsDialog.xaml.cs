@@ -24,7 +24,7 @@
 	{
 		#region Private Data Members
 
-		private OptionsPage page;
+		private OptionsPage? page;
 
 		#endregion
 

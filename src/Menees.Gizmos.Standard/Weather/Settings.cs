@@ -14,7 +14,7 @@ namespace Menees.Gizmos.Weather
 	{
 		#region Internal Fields
 
-		internal static readonly Settings Default = new Settings(true);
+		internal static readonly Settings Default = new(true);
 
 		#endregion
 

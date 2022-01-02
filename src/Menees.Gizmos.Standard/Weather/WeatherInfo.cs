@@ -21,8 +21,8 @@ namespace Menees.Gizmos.Weather
 			ForecastInfo.Empty,
 		};
 
-		private CurrentInfo current;
-		private IReadOnlyList<ForecastInfo> dailyForecasts;
+		private CurrentInfo? current;
+		private IReadOnlyList<ForecastInfo>? dailyForecasts;
 
 		#endregion
 
@@ -37,7 +37,7 @@ namespace Menees.Gizmos.Weather
 			provider.UpdateWeatherAsync(this).Wait();
 		}
 
-		internal WeatherInfo(Settings settings)
+		internal WeatherInfo(Settings? settings)
 		{
 			this.Settings = settings ?? Settings.Default;
 			this.LocationName = this.Settings.UserLocation;
@@ -49,11 +49,11 @@ namespace Menees.Gizmos.Weather
 
 		public Settings Settings { get; }
 
-		public string LocationName { get; internal set; }
+		public string? LocationName { get; internal set; }
 
-		public string Attribution { get; internal set; }
+		public string? Attribution { get; internal set; }
 
-		public Uri ImageBaseUri { get; internal set; }
+		public Uri? ImageBaseUri { get; internal set; }
 
 		public CurrentInfo Current
 		{
@@ -80,7 +80,7 @@ namespace Menees.Gizmos.Weather
 				}
 				else if (this.dailyForecasts.Count < MissingForecasts.Length)
 				{
-					List<ForecastInfo> list = new List<ForecastInfo>(this.dailyForecasts);
+					List<ForecastInfo> list = new(this.dailyForecasts);
 					while (list.Count < MissingForecasts.Length)
 					{
 						list.Add(ForecastInfo.Empty);
@@ -98,7 +98,7 @@ namespace Menees.Gizmos.Weather
 			}
 		}
 
-		public string ErrorMessage { get; private set; }
+		public string? ErrorMessage { get; private set; }
 
 		public bool IsValid
 		{
@@ -109,9 +109,9 @@ namespace Menees.Gizmos.Weather
 			}
 		}
 
-		public string MoreInfoLabel => this.MoreInfoLink != null ? "More Information" : null;
+		public string? MoreInfoLabel => this.MoreInfoLink != null ? "More Information" : null;
 
-		public Uri MoreInfoLink { get; internal set; }
+		public Uri? MoreInfoLink { get; internal set; }
 
 		#endregion
 

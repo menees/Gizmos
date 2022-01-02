@@ -1,11 +1,4 @@
-﻿[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage(
-	"Microsoft.Design",
-	"CA1020:AvoidNamespacesWithFewTypes",
-	Scope = "namespace",
-	Target = "Menees.Gizmos.Cpu",
-	Justification = "I want each gizmo in its own namespace.")]
-
-namespace Menees.Gizmos.Cpu
+﻿namespace Menees.Gizmos.Cpu
 {
 	#region Using Directives
 
@@ -47,10 +40,10 @@ namespace Menees.Gizmos.Cpu
 		// This should only be set to true when testing to see how the gizmo behaves if the user can't access performance counter information.
 		private const bool TestAsIfNoSecurityAccess = false;
 
-		private DispatcherTimer timer;
-		private PerformanceCounter overallCpuCounter;
-		private ProcessInfoCache cache;
-		private Tuple<TextBlock, TextBlock>[] lines;
+		private readonly DispatcherTimer timer;
+		private readonly PerformanceCounter? overallCpuCounter;
+		private readonly ProcessInfoCache? cache;
+		private readonly Tuple<TextBlock, TextBlock>[] lines;
 
 		// We need to throw away the first set of counter measurements.  They're crap because the
 		// counters need at least two measurements about a second apart to calculate good values.
@@ -76,12 +69,14 @@ namespace Menees.Gizmos.Cpu
 			const int ItemLimit = 3;
 			this.TopCount = ItemLimit;
 			this.ShowTenths = true;
-			this.timer = new DispatcherTimer();
-			this.timer.Interval = TimeSpan.FromSeconds(1);
+			this.timer = new DispatcherTimer
+			{
+				Interval = TimeSpan.FromSeconds(1),
+			};
 			this.timer.Tick += (s, e) => this.RefreshData();
 
 			// Read a counter value up front to get it initialized and to see if we have access.
-			this.overallCpuCounter = ProcessInfoCache.TryGetCounterInstance("Processor", "% Processor Time", "_Total", out Exception ex);
+			this.overallCpuCounter = ProcessInfoCache.TryGetCounterInstance("Processor", "% Processor Time", "_Total", out Exception? ex);
 			if (this.overallCpuCounter != null)
 			{
 				this.overallCpuCounter.NextValue();
@@ -108,7 +103,7 @@ namespace Menees.Gizmos.Cpu
 
 		#region Public Events
 
-		public event PropertyChangedEventHandler PropertyChanged;
+		public event PropertyChangedEventHandler? PropertyChanged;
 
 		#endregion
 
@@ -126,11 +121,7 @@ namespace Menees.Gizmos.Cpu
 				if (this.IsPaused != value)
 				{
 					this.timer.IsEnabled = !value;
-					var handler = this.PropertyChanged;
-					if (handler != null)
-					{
-						handler(this, new PropertyChangedEventArgs(nameof(this.IsPaused)));
-					}
+					this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.IsPaused)));
 				}
 			}
 		}
@@ -298,7 +289,7 @@ namespace Menees.Gizmos.Cpu
 			return string.Format(format, value);
 		}
 
-		private void UpdateLines(Tuple<string, float>[] items)
+		private void UpdateLines(Tuple<string, float>[]? items)
 		{
 			// Note: It possible to have fewer items than lines, but it should be rare.
 			for (int i = 0; i < this.lines.Length; i++)
@@ -366,8 +357,8 @@ namespace Menees.Gizmos.Cpu
 			// The division needs this as a float, so we'll do that once up front.
 			private static readonly float ProcessorCount = Environment.ProcessorCount;
 
-			private PerformanceCounterCategory category;
-			private Dictionary<string, CounterSample> previousSamples;
+			private readonly PerformanceCounterCategory category;
+			private Dictionary<string, CounterSample>? previousSamples;
 
 			#endregion
 
@@ -382,23 +373,23 @@ namespace Menees.Gizmos.Cpu
 
 			#region Public Methods
 
-			public static PerformanceCounter TryGetCounterInstance(string category, string counter, string instance, out Exception exception)
+			public static PerformanceCounter? TryGetCounterInstance(string category, string counter, string instance, out Exception? exception)
 			{
-				PerformanceCounter result = TryGetPerformanceData(() => new PerformanceCounter(category, counter, instance, true), out exception);
+				PerformanceCounter? result = TryGetPerformanceData(() => new PerformanceCounter(category, counter, instance, true), out exception);
 				return result;
 			}
 
 			public Dictionary<string, float> Refresh(float minValue)
 			{
-				InstanceDataCollectionCollection allData = TryGetPerformanceData(() => this.category.ReadCategory(), out Exception ex);
+				InstanceDataCollectionCollection? allData = TryGetPerformanceData(() => this.category.ReadCategory(), out Exception? ex);
 
-				Dictionary<string, float> result = new Dictionary<string, float>(StringComparer.CurrentCultureIgnoreCase);
+				Dictionary<string, float> result = new(StringComparer.CurrentCultureIgnoreCase);
 				if (allData != null)
 				{
 					InstanceDataCollection processData = allData["% Processor Time"];
 					if (processData != null)
 					{
-						Dictionary<string, CounterSample> currentSamples = new Dictionary<string, CounterSample>();
+						Dictionary<string, CounterSample> currentSamples = new();
 						foreach (InstanceData data in processData.Values)
 						{
 							string instanceName = data.InstanceName;
@@ -425,11 +416,11 @@ namespace Menees.Gizmos.Cpu
 
 			#region Private Methods
 
-			private static T TryGetPerformanceData<T>(Func<T> getPerformanceData, out Exception exception)
+			private static T? TryGetPerformanceData<T>(Func<T> getPerformanceData, out Exception? exception)
 				where T : class
 			{
 				exception = null;
-				T result = null;
+				T? result = null;
 
 				try
 				{

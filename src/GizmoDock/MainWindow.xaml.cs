@@ -41,9 +41,11 @@
 		public MainWindow()
 		{
 			this.InitializeComponent();
-			this.saver = new WindowSaver(this);
-			this.saver.AutoLoad = false;
-			this.saver.AutoSave = false;
+			this.saver = new WindowSaver(this)
+			{
+				AutoLoad = false,
+				AutoSave = false,
+			};
 			this.saver.LoadSettings += this.Saver_LoadSettings;
 			this.saver.SaveSettings += this.Saver_SaveSettings;
 		}
@@ -52,7 +54,7 @@
 
 		#region Public Properties
 
-		public CommandLineArgs CommandLineArgs { get; internal set; }
+		public CommandLineArgs? CommandLineArgs { get; internal set; }
 
 		#endregion
 
@@ -61,7 +63,7 @@
 		// This has to be explicitly implemented because the property name is the same as this class's name.
 		Window IDock.MainWindow => this;
 
-		private Gizmo CurrentGizmo { get; set; }
+		private Gizmo? CurrentGizmo { get; set; }
 
 		#endregion
 
@@ -76,7 +78,7 @@
 				// (since the .stgx file will typically be in the same folder as the .exe).  However the '\' character is
 				// reserved for kernel object namespaces, so we have to replace it.
 				// http://stackoverflow.com/questions/4313756/creating-a-mutex-throws-a-directorynotfoundexception.
-				using (Mutex mutex = new Mutex(false, ApplicationInfo.ExecutableFile.Replace('\\', '_')))
+				using (Mutex mutex = new(false, ApplicationInfo.ExecutableFile.Replace('\\', '_')))
 				{
 					if (mutex.WaitOne())
 					{
@@ -99,7 +101,7 @@
 
 		private string GetGizmoSettingsNodePath(bool appendWindowSettingsNodeName)
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 
 			if (this.CurrentGizmo != null)
 			{
@@ -129,53 +131,53 @@
 
 		#region Private Event Handlers
 
-		private void Close_Click(object sender, RoutedEventArgs e)
+		private void Close_Click(object? sender, RoutedEventArgs e)
 		{
 			this.Close();
 		}
 
-		private void Options_Click(object sender, RoutedEventArgs e)
+		private void Options_Click(object? sender, RoutedEventArgs e)
 		{
 			if (this.CurrentGizmo != null && this.CurrentGizmo.Info.HasOptions)
 			{
-				OptionsPage page = this.CurrentGizmo.CreateOptionsPage();
+				OptionsPage? page = this.CurrentGizmo.CreateOptionsPage();
 				if (page != null)
 				{
-					OptionsDialog dialog = new OptionsDialog();
+					OptionsDialog dialog = new();
 					dialog.Title = this.CurrentGizmo.Info.GizmoName + ' ' + dialog.Title;
 					dialog.ShowDialog(this, page);
 				}
 			}
 		}
 
-		private void Grip_Click(object sender, MouseButtonEventArgs e)
+		private void Grip_Click(object? sender, MouseButtonEventArgs e)
 		{
 			this.DragMove();
 		}
 
-		private void Saver_LoadSettings(object sender, SettingsEventArgs e)
+		private void Saver_LoadSettings(object? sender, SettingsEventArgs e)
 		{
 			if (this.CurrentGizmo != null)
 			{
 				string path = this.GetGizmoSettingsNodePath(false);
-				ISettingsNode gizmoNode = e.SettingsNode.GetSubNode(path, true);
+				ISettingsNode gizmoNode = e.SettingsNode.GetSubNode(path);
 				this.CurrentGizmo.LoadSettings(gizmoNode);
 			}
 		}
 
-		private void Saver_SaveSettings(object sender, SettingsEventArgs e)
+		private void Saver_SaveSettings(object? sender, SettingsEventArgs e)
 		{
 			if (this.CurrentGizmo != null)
 			{
 				string path = this.GetGizmoSettingsNodePath(false);
-				ISettingsNode gizmoNode = e.SettingsNode.GetSubNode(path, true);
+				ISettingsNode gizmoNode = e.SettingsNode.GetSubNode(path);
 				this.CurrentGizmo.SaveSettings(gizmoNode);
 			}
 		}
 
-		private void Window_Loaded(object sender, RoutedEventArgs e)
+		private void Window_Loaded(object? sender, RoutedEventArgs e)
 		{
-			Gizmo gizmo = null;
+			Gizmo? gizmo = null;
 			bool showInTaskbar = false;
 			if (this.CommandLineArgs != null)
 			{
@@ -211,12 +213,12 @@
 			}
 		}
 
-		private void Window_Closing(object sender, CancelEventArgs e)
+		private void Window_Closing(object? sender, CancelEventArgs e)
 		{
 			this.BeginClosing(e);
 		}
 
-		private void Window_Closed(object sender, EventArgs e)
+		private void Window_Closed(object? sender, EventArgs e)
 		{
 			// Some Gizmos may need to explicitly clean up resources.  For example, CPU Stats needs to dispose
 			// of its PerformanceCounters, and WorkBreak needs to dispose its NotifyIcon.

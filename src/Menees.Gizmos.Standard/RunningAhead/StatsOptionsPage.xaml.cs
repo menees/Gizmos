@@ -70,8 +70,8 @@
 				string logId = this.logId.Text.Trim();
 				if (!string.IsNullOrEmpty(logId))
 				{
-					string errorMessage = null;
-					if (!Guid.TryParseExact(logId, "N", out Guid logGuid))
+					string? errorMessage;
+					if (!Guid.TryParseExact(logId, "N", out _))
 					{
 						errorMessage = "The Log ID must be exactly 32 characters long consisting of 0-9 and a-f.";
 						this.logId.Focus();
@@ -82,7 +82,7 @@
 						this.logId.Focus();
 					}
 
-					if (!string.IsNullOrEmpty(errorMessage))
+					if (errorMessage.IsNotEmpty())
 					{
 						WindowsUtility.ShowError(this, errorMessage);
 						result = false;

@@ -98,7 +98,7 @@
 
 		private bool TryGetGizmoTypes(string assemblyName, bool showErrors)
 		{
-			List<string> errors = new List<string>();
+			List<string> errors = new();
 
 			if (!File.Exists(assemblyName))
 			{
@@ -108,7 +108,7 @@
 			{
 				using (new WaitCursor())
 				{
-					IList<GizmoInfo> gizmoTypes = Gizmo.GetGizmoTypes(assemblyName, errors);
+					IList<GizmoInfo>? gizmoTypes = GetGizmoTypes(assemblyName, errors);
 					bool foundTypes = gizmoTypes != null && gizmoTypes.Count > 0;
 
 					// Use a "dummy" list if no types are found, so that other data-bound controls will enable/disable correctly.
@@ -117,7 +117,7 @@
 						gizmoTypes = NoGizmosFound.GizmoTypes;
 					}
 
-					this.SetDataContext(gizmoTypes, foundTypes);
+					this.SetDataContext(gizmoTypes!, foundTypes);
 				}
 			}
 
@@ -137,13 +137,13 @@
 			this.gizmos.IsEnabled = foundTypes;
 		}
 
-		private bool TryGetShortcutInfo(out ShortcutInfo info)
+		private bool TryGetShortcutInfo([MaybeNullWhen(false)] out ShortcutInfo info)
 		{
-			string errorMessage = null;
-			Control focusControl = null;
+			string? errorMessage = null;
+			Control? focusControl = null;
 
-			GizmoInfo gizmo = this.gizmos.SelectedItem as GizmoInfo;
-			string instanceName = null;
+			GizmoInfo? gizmo = this.gizmos.SelectedItem as GizmoInfo;
+			string? instanceName = null;
 			if (gizmo == null)
 			{
 				errorMessage = "You must select a gizmo.";
@@ -159,15 +159,15 @@
 				}
 			}
 
-			bool result = string.IsNullOrEmpty(errorMessage);
-			if (result)
+			bool result = errorMessage.IsEmpty();
+			if (result && gizmo != null)
 			{
 				info = new ShortcutInfo(gizmo, gizmo.IsSingleInstance ? null : instanceName, this.showInTaskbar.IsChecked ?? false);
 			}
 			else
 			{
 				info = null;
-				WindowsUtility.ShowError(this, errorMessage);
+				WindowsUtility.ShowError(this, errorMessage!);
 			}
 
 			if (focusControl != null)
@@ -189,7 +189,7 @@
 
 		private void SelectAssemblyClick(object sender, RoutedEventArgs e)
 		{
-			OpenFileDialog dialog = new OpenFileDialog
+			OpenFileDialog dialog = new()
 			{
 				DefaultExt = ".dll",
 				Filter = "DLLs (*.dll)|*.dll|All Files (*.*)|*.*",
@@ -197,7 +197,7 @@
 				Title = "Select Custom Gizmo Library",
 			};
 
-			if (dialog.ShowDialog(this.Dock.MainWindow) ?? false)
+			if (this.Dock != null && (dialog.ShowDialog(this.Dock.MainWindow) ?? false))
 			{
 				using (new WaitCursor())
 				{
@@ -212,7 +212,7 @@
 
 		private void RunClick(object sender, RoutedEventArgs e)
 		{
-			if (this.TryGetShortcutInfo(out ShortcutInfo info))
+			if (this.TryGetShortcutInfo(out ShortcutInfo? info))
 			{
 				try
 				{
@@ -231,7 +231,7 @@
 
 		private void CopyClick(object sender, RoutedEventArgs e)
 		{
-			if (this.TryGetShortcutInfo(out ShortcutInfo info))
+			if (this.TryGetShortcutInfo(out ShortcutInfo? info))
 			{
 				using (new WaitCursor())
 				{
@@ -243,9 +243,9 @@
 
 		private void CreateShortcutClick(object sender, RoutedEventArgs e)
 		{
-			if (this.TryGetShortcutInfo(out ShortcutInfo info))
+			if (this.Dock != null && this.TryGetShortcutInfo(out ShortcutInfo? info))
 			{
-				SaveFileDialog dialog = new SaveFileDialog
+				SaveFileDialog dialog = new()
 				{
 					DefaultExt = ".lnk",
 					Filter = "Shortcuts (*.lnk)|*.lnk|All Files (*.*)|*.*",
@@ -285,7 +285,7 @@
 		{
 			#region Constructors
 
-			public ShortcutInfo(GizmoInfo gizmo, string instanceName, bool showInTaskbar)
+			public ShortcutInfo(GizmoInfo gizmo, string? instanceName, bool showInTaskbar)
 			{
 				this.Gizmo = gizmo;
 				this.InstanceName = instanceName;
@@ -298,7 +298,7 @@
 
 			public GizmoInfo Gizmo { get; }
 
-			public string InstanceName { get; }
+			public string? InstanceName { get; }
 
 			public bool ShowInTaskbar { get; }
 
@@ -308,7 +308,7 @@
 
 			public string BuildCommandLine(bool includeExecutable)
 			{
-				StringBuilder result = new StringBuilder();
+				StringBuilder result = new();
 
 				if (includeExecutable)
 				{
@@ -336,25 +336,28 @@
 			{
 				// From: http://stackoverflow.com/questions/234231/creating-application-shortcut-in-a-directory
 				// WshShortcut Object Properties and Methods: http://msdn.microsoft.com/en-us/library/f5y78918.aspx
-				dynamic shell = ComUtility.CreateInstance("WScript.Shell");
-				try
+				dynamic? shell = ComUtility.CreateInstance("WScript.Shell");
+				if (shell != null)
 				{
-					var link = shell.CreateShortcut(shortcutFileName);
 					try
 					{
-						link.TargetPath = ApplicationInfo.ExecutableFile;
-						link.Arguments = this.BuildCommandLine(false);
-						link.Description = "Opens the \"" + this.Gizmo.GizmoName + "\" gizmo.";
-						link.Save();
+						var link = shell.CreateShortcut(shortcutFileName);
+						try
+						{
+							link.TargetPath = ApplicationInfo.ExecutableFile;
+							link.Arguments = this.BuildCommandLine(false);
+							link.Description = "Opens the \"" + this.Gizmo.GizmoName + "\" gizmo.";
+							link.Save();
+						}
+						finally
+						{
+							ComUtility.FinalRelease(link);
+						}
 					}
 					finally
 					{
-						ComUtility.FinalRelease(link);
+						ComUtility.FinalRelease(shell);
 					}
-				}
-				finally
-				{
-					ComUtility.FinalRelease(shell);
 				}
 			}
 

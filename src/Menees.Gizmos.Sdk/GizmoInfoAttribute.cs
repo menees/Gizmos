@@ -23,6 +23,7 @@ namespace Menees.Gizmos
 		/// </summary>
 		public GizmoInfoAttribute()
 		{
+			this.GizmoName = string.Empty;
 		}
 
 		#endregion

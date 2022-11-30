@@ -236,7 +236,7 @@ namespace Menees.Gizmos
 		{
 			Dictionary<string, object> result = new();
 			result.Add(nameof(Gizmo), this.Info.GizmoName);
-			if (!this.Info.IsSingleInstance && !this.InstanceName.IsBlank())
+			if (!this.Info.IsSingleInstance && !this.InstanceName.IsWhiteSpace())
 			{
 				result.Add("Instance", this.InstanceName);
 			}

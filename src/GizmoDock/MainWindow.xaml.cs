@@ -20,6 +20,7 @@
 	using System.Windows.Media.Imaging;
 	using System.Windows.Navigation;
 	using System.Windows.Shapes;
+	using System.Windows.Threading;
 	using Menees.Windows.Presentation;
 
 	#endregion
@@ -28,11 +29,12 @@
 		"Microsoft.Performance",
 		"CA1812:AvoidUninstantiatedInternalClasses",
 		Justification = "Created via reflection by WPF.")]
-	internal partial class MainWindow : IDock
+	internal partial class MainWindow : IDock, IGizmoServer
 	{
 		#region Private Data Members
 
 		private readonly WindowSaver saver;
+		private IDisposable? server;
 
 		#endregion
 
@@ -64,6 +66,62 @@
 		Window IDock.MainWindow => this;
 
 		private Gizmo? CurrentGizmo { get; set; }
+
+		#endregion
+
+		#region IGizmoServer Methods
+
+		void IGizmoServer.Close()
+		{
+			// Post a message and delay it a little bit so the current (background) thread
+			// has time to finish and return to the caller.
+			this.Dispatcher.BeginInvoke(
+				() =>
+				{
+					Thread.Sleep(100);
+					this.Close();
+				},
+				DispatcherPriority.ApplicationIdle);
+		}
+
+		(double Left, double Top, double Width, double Height) IGizmoServer.GetScreenRectangle()
+		{
+			double left, top, width, height;
+			left = top = width = height = double.NaN;
+
+			// This RPC method will be invoked from a background thread, so we'll use Dispatcher.Invoke
+			// to request the window bounds on the main UI thread. There's a potential for deadlock here
+			// if the thread pool is full, and the main thread is waiting on a background thread already.
+			// Maybe the timeout will get around that rare case (I hope).
+			const int MaxWaitSeconds = 2;
+			this.Dispatcher.Invoke(
+				() =>
+				{
+					left = this.Left;
+					top = this.Top;
+					width = this.ActualWidth;
+					height = this.ActualHeight;
+				},
+				TimeSpan.FromSeconds(MaxWaitSeconds));
+
+			return (left, top, width, height);
+		}
+
+		void IGizmoServer.MoveTo(double left, double top)
+		{
+			this.Dispatcher.BeginInvoke(
+				() =>
+				{
+					this.Top = top;
+					this.Left = left;
+				},
+				DispatcherPriority.ApplicationIdle);
+		}
+
+		void IGizmoServer.BringToFront()
+		{
+			this.Dispatcher.BeginInvoke(() => WindowsUtility.BringToFront(this), DispatcherPriority.ApplicationIdle);
+		}
 
 		#endregion
 
@@ -206,6 +264,8 @@
 					this.Title = gizmo.Info.GizmoName;
 					this.saver.SettingsNodeName = this.GetGizmoSettingsNodePath(true);
 					this.saver.Load();
+
+					this.server = Remote.CreateServer<IGizmoServer>(gizmo, this);
 				}
 
 				// Force a GC after a second so at idle we'll use the least amount of memory.
@@ -220,6 +280,8 @@
 
 		private void Window_Closed(object? sender, EventArgs e)
 		{
+			this.server?.Dispose();
+
 			// Some Gizmos may need to explicitly clean up resources.  For example, CPU Stats needs to dispose
 			// of its PerformanceCounters, and WorkBreak needs to dispose its NotifyIcon.
 			if (this.CurrentGizmo is IDisposable disposable)

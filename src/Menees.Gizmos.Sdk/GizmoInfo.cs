@@ -44,7 +44,7 @@ namespace Menees.Gizmos
 			this.HasOptions = method != null;
 
 			// Make sure the gizmo name isn't crap.
-			if (this.GizmoName.IsBlank())
+			if (this.GizmoName.IsWhiteSpace())
 			{
 				this.GizmoName = gizmoType.Name;
 			}

@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Menees.Windows.Presentation" Version="5.0.3" />
+    <PackageReference Include="Menees.Remoting" Version="0.8.0-beta" />
+    <PackageReference Include="Menees.Windows.Presentation" Version="5.1.1" />
   </ItemGroup>
 </Project>

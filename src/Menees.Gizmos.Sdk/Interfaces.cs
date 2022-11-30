@@ -25,4 +25,19 @@ namespace Menees.Gizmos
 	}
 
 	#endregion
+
+	#region public IGizmoServer
+
+	public interface IGizmoServer
+	{
+		void Close();
+
+		(double Left, double Top, double Width, double Height) GetScreenRectangle();
+
+		void MoveTo(double left, double top);
+
+		void BringToFront();
+	}
+
+	#endregion
 }

@@ -24,8 +24,11 @@
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
 
+		<!-- I'll keep the NetAnalyzers version matching the TargetFrameworks "Core" version. -->
+		<_SkipUpgradeNetAnalyzersNuGetWarning >true</_SkipUpgradeNetAnalyzersNuGetWarning>
+
 		<!-- Make the assembly, file, and NuGet package versions the same. -->
-		<Version>1.1.2</Version>
+		<Version>1.2.0</Version>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -53,7 +56,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Menees.Analyzers" Version="3.0.4">
+		<PackageReference Include="Menees.Analyzers" Version="3.0.10">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

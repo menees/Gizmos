@@ -52,9 +52,17 @@ if ($publish)
 			{
 				Write-Host "Publishing version $version $configuration profiles to $artifactsPath"
 				$profiles = @(Get-ChildItem -r "$repoPath\src\**\Properties\PublishProfiles\*.pubxml")
+				$publishedProfiles = @{}
 				foreach ($profile in $profiles)
 				{
 					$profileName = [IO.Path]::GetFileNameWithoutExtension($profile)
+					if ($publishedProfiles[$profileName])
+					{
+						# We publish the profile for the entire solution below, and that uses every project's PublishProfile. So, we don't need to repeat one.
+						# This matters because we have two .exes (GizmoDock and GizmoTray), and both have Core and Framework profiles.
+						continue
+					}
+
 					Write-Host "Publishing $profileName"
 
 					# The Publish target in "C:\Program Files\dotnet\sdk\3.1.101\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.Sdk.CrossTargeting.targets"
@@ -66,6 +74,7 @@ if ($publish)
 
 					Compress-Archive -Path "$artifactsPath\$profileName\*" -DestinationPath "$artifactsPath\$productName-Portable-$version-$profileName.zip"
 					$published = $true
+					$publishedProfiles[$profileName] = $targetFramework
 				}
 			}
 		}

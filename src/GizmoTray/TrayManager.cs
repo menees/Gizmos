@@ -73,14 +73,15 @@ internal sealed class TrayManager : IDisposable
 		notifyIconMenu.Items.AddRange(new ToolStripItem[]
 		{
 #pragma warning disable CC0022 // Should dispose object. Disposing of the context menu cleans these up.
-			CreateMenuItem("&Bring All To Front", BringAllToFront, isDefault: true),
+			CreateMenuItem("&Show All", ShowAll, isDefault: true),
 			CreateMenuItem("&Align All", AlignAll),
+			new ToolStripSeparator(),
+			CreateMenuItem("C&reate Shortcut...", CreateShortcut),
+			CreateMenuItem("A&bout...", About),
+			new ToolStripSeparator(),
 			CreateMenuItem("&Close All", CloseAll),
-			new ToolStripSeparator(),
-			CreateMenuItem("Create &Shortcut...", CreateShortcut),
-			CreateMenuItem("Abou&t...", About),
-			new ToolStripSeparator(),
-			CreateMenuItem("&Exit", Exit),
+			CreateMenuItem("C&lose All And Exit", CloseAllAndExit),
+			CreateMenuItem("E&xit", Exit),
 #pragma warning restore CC0022 // Should dispose object
 		});
 
@@ -107,14 +108,8 @@ internal sealed class TrayManager : IDisposable
 		}
 	}
 
-	private static void BringAllToFront(object? sender, EventArgs e)
-	{
-		string[] baseNames = Remote.GetBaseNames<IGizmoServer>().ToArray();
-		Parallel.ForEach(baseNames, baseName =>
-		{
-			Remote.TryCallService<IGizmoServer>(baseName, server => server.BringToFront());
-		});
-	}
+	private static void ShowAll(object? sender, EventArgs e)
+		=> Remote.TryCallAllServers(server => server.BringToFront());
 
 	private static void AlignAll(object? sender, EventArgs e)
 	{
@@ -151,19 +146,19 @@ internal sealed class TrayManager : IDisposable
 	}
 
 	private static void CloseAll(object? sender, EventArgs e)
+		=> Remote.CloseAll();
+
+	private static void CloseAllAndExit(object? sender, EventArgs e)
 	{
-		string[] baseNames = Remote.GetBaseNames<IGizmoServer>().ToArray();
-		Parallel.ForEach(baseNames, baseName =>
-		{
-			Remote.TryCallService<IGizmoServer>(baseName, server => server.Close());
-		});
+		CloseAll(sender, e);
+		Exit(sender, e);
 	}
 
 	private static void IconDoubleClick(object? sender, MouseEventArgs e)
 	{
 		if (e.Button == MouseButtons.Left)
 		{
-			BringAllToFront(sender, e);
+			ShowAll(sender, e);
 		}
 	}
 

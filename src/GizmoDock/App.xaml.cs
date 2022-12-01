@@ -8,6 +8,7 @@
 	using System.Data;
 	using System.Diagnostics;
 	using System.Linq;
+	using System.Threading;
 	using System.Threading.Tasks;
 	using System.Windows;
 	using Menees.Windows.Presentation;
@@ -66,7 +67,13 @@
 
 		private static void CloseOtherGizmoDocks()
 		{
-			// Close all GizmoDock processes except this one.
+			// Send a nice request for each GizmoDock process to close.
+			Remote.CloseAll();
+
+			// Wait a bit for them to gracefully exit.
+			Thread.Sleep(TimeSpan.FromSeconds(2));
+
+			// Force close all remaining GizmoDock processes except this one.
 			Process[] processes = Process.GetProcessesByName("GizmoDock");
 			foreach (Process process in processes.Where(p => p.Id != ApplicationInfo.ProcessId))
 			{

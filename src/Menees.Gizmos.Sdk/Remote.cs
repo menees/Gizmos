@@ -123,6 +123,17 @@ public static class Remote
 			|| (ex is AggregateException agg && agg.InnerExceptions.Count == 1 && HandleException(agg.InnerExceptions[0]));
 	}
 
+	public static void TryCallAllServers(Action<IGizmoServer> callServer)
+	{
+		string[] baseNames = GetBaseNames<IGizmoServer>().ToArray();
+		Parallel.ForEach(baseNames, baseName =>
+		{
+			TryCallService<IGizmoServer>(baseName, server => callServer(server));
+		});
+	}
+
+	public static void CloseAll() => TryCallAllServers(server => server.Close());
+
 	#endregion
 
 	#region Private Methods

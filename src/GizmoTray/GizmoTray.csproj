@@ -5,6 +5,7 @@
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 		<ApplicationIcon>..\GizmoDock\Resources\GizmoDock.ico</ApplicationIcon>
+		<IsPublishable>true</IsPublishable>
 	</PropertyGroup>
 
 	<ItemGroup>

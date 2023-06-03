@@ -132,11 +132,10 @@ internal sealed class TrayManager : IDisposable
 			if (windowInfo.Count > 0)
 			{
 				windowInfo = windowInfo.OrderBy(rect => rect.Top).ThenBy(rect => rect.Left).ToList();
-				double minLleft = windowInfo.Min(rect => rect.Left);
-				double nextTop = windowInfo.Min(rect => rect.Top);
+				(_, double left, double nextTop, _) = windowInfo[0];
 				foreach ((string baseName, _, _, double height) in windowInfo)
 				{
-					Remote.TryCallService<IGizmoServer>(baseName, server => server.MoveTo(minLleft, nextTop));
+					Remote.TryCallService<IGizmoServer>(baseName, server => server.MoveTo(left, nextTop));
 
 					const double Separator = 2;
 					nextTop += height + Separator;

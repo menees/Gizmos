@@ -132,23 +132,14 @@
 			// If we don't have a gizmo, then we don't need to save window placement either.
 			if (!e.Cancel && this.CurrentGizmo != null && !this.CurrentGizmo.Info.IsTemporary)
 			{
-				// Because all gizmos share the same .stgx file, we'll use the full path to the .exe as the mutex name
-				// (since the .stgx file will typically be in the same folder as the .exe).  However the '\' character is
-				// reserved for kernel object namespaces, so we have to replace it.
-				// http://stackoverflow.com/questions/4313756/creating-a-mutex-throws-a-directorynotfoundexception.
-				using (Mutex mutex = new(false, ApplicationInfo.ExecutableFile.Replace('\\', '_')))
+				using WindowSaverLock saverLock = new();
+
+				// During OS shutdown or logoff we shouldn't wait long to save settings. The OS will
+				// kill the process if we take too long, and that can lead to corrupt settings files.
+				using IDisposable? exclusiveLock = saverLock.TryLock(TimeSpan.FromSeconds(2));
+				if (exclusiveLock != null)
 				{
-					if (mutex.WaitOne())
-					{
-						try
-						{
-							this.saver.Save();
-						}
-						finally
-						{
-							mutex.ReleaseMutex();
-						}
-					}
+					this.saver.Save();
 				}
 			}
 		}
@@ -263,7 +254,16 @@
 				{
 					this.Title = gizmo.Info.GizmoName;
 					this.saver.SettingsNodeName = this.GetGizmoSettingsNodePath(true);
-					this.saver.Load();
+
+					// We need to get an exclusive lock before trying to read the settings. All GizmoDock instances
+					// share the same .stgx file, and FileSettingsStore requests write access to the file even during
+					// Load to ensure it's loading the most preferred settings file.
+					using WindowSaverLock saverLock = new();
+					using IDisposable? exclusiveLock = saverLock.TryLock(TimeSpan.FromSeconds(5));
+					if (exclusiveLock != null)
+					{
+						this.saver.Load();
+					}
 
 					this.server = Remote.CreateServer<IGizmoServer>(gizmo, this);
 				}

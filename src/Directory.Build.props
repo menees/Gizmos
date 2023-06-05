@@ -24,10 +24,6 @@
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
 
-		<!-- Default to non-publishable to avoid warnings about publishing DLLs with no publish profiles.
-		We'll override this to true for the EXEs we want to publish. https://stackoverflow.com/a/63788333/1882616 -->
-		<IsPublishable>false</IsPublishable>
-
 		<!-- I'll keep the NetAnalyzers version matching the TargetFrameworks "Core" version. -->
 		<_SkipUpgradeNetAnalyzersNuGetWarning >true</_SkipUpgradeNetAnalyzersNuGetWarning>
 

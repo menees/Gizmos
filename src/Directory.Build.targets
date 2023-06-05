@@ -1,0 +1,8 @@
+<Project>
+	<PropertyGroup>
+		<!-- Default to non-publishable to avoid warnings about publishing DLLs with no publish profiles.
+		We'll override this to true for the EXEs we want to publish. https://stackoverflow.com/a/63788333/1882616 -->
+		<IsPublishable Condition="'$(IsPublishable)' == ''">false</IsPublishable>
+		<IsPublishable Condition="'$(OutputType)' == 'WinExe'"></IsPublishable>
+	</PropertyGroup>
+</Project>

@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Src", "Src", "{0845F625-5949-4FEC-8AF7-A299476B1EF7}"
 	ProjectSection(SolutionItems) = preProject
 		src\Directory.Build.props = src\Directory.Build.props
+		src\Directory.Build.targets = src\Directory.Build.targets
 		src\Gizmos.ruleset = src\Gizmos.ruleset
 	EndProjectSection
 EndProject
@@ -22,7 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GizmoTray", "src\GizmoTray\GizmoTray.csproj", "{DAF364D1-18A4-4FDF-AE2F-C7F14C37A43F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GizmoTray", "src\GizmoTray\GizmoTray.csproj", "{DAF364D1-18A4-4FDF-AE2F-C7F14C37A43F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

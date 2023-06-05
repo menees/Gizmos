@@ -4,7 +4,6 @@
 		<OutputType>WinExe</OutputType>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>Resources\GizmoDock.ico</ApplicationIcon>
-		<IsPublishable>true</IsPublishable>
 	</PropertyGroup>
 
 	<ItemGroup>
